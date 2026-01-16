@@ -1,5 +1,6 @@
 run = "npm run dev -- --host 0.0.0.0 --port 3000"
 entrypoint = "src/App.tsx"
+modules = ["nodejs-20", "web", "nix"]
 
 [deployment]
 run = ["sh", "-c", "npm run build && npx serve dist -l 3000"]
@@ -7,7 +8,7 @@ deploymentTarget = "static"
 publicDir = "dist"
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-25_05"
 
 [env]
 PATH = "/home/runner/$REPL_SLUG/.config/npm/node_global/bin:/home/runner/$REPL_SLUG/node_modules/.bin:./node_modules/.bin"
