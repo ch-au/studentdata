@@ -1,0 +1,18 @@
+run = "npm run dev -- --host 0.0.0.0 --port 3000"
+entrypoint = "src/App.tsx"
+
+[deployment]
+run = ["sh", "-c", "npm run build && npx serve dist -l 3000"]
+deploymentTarget = "static"
+publicDir = "dist"
+
+[nix]
+channel = "stable-24_05"
+
+[env]
+PATH = "/home/runner/$REPL_SLUG/.config/npm/node_global/bin:/home/runner/$REPL_SLUG/node_modules/.bin:./node_modules/.bin"
+npm_config_prefix = "/home/runner/$REPL_SLUG/.config/npm/node_global"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
