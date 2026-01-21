@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { memo, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import type { DegreePanel, LineKey, Series } from '../types'
 import type { ScaleMode } from '../compute/aggregate'
@@ -26,7 +26,7 @@ function lastPoint(s: Series) {
   return s.points[s.points.length - 1]
 }
 
-export function IndexLineChart({ title, panels, scaleMode = 'index', compact = false, onHoverYear, onSelectYear, onSelectLine }: Props) {
+function IndexLineChartComponent({ title, panels, scaleMode = 'index', compact = false, onHoverYear, onSelectYear, onSelectLine }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState>(null)
   const [hoveredLine, setHoveredLine] = useState<LineKey | null>(null)
@@ -408,3 +408,5 @@ export function IndexLineChart({ title, panels, scaleMode = 'index', compact = f
     </div>
   )
 }
+
+export const IndexLineChart = memo(IndexLineChartComponent)

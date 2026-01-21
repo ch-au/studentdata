@@ -1,0 +1,259 @@
+.commandBar {
+  background: var(--panel);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.appTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}
+
+.commandBarRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.commandBarPrimary {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.commandBarSecondary {
+  padding-top: 2px;
+}
+
+.commandBarGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.commandBarCenter {
+  flex: 1;
+  justify-content: center;
+  gap: 6px;
+}
+
+.commandBarRight {
+  margin-left: auto;
+  gap: 6px;
+}
+
+.commandBarDivider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-light);
+}
+
+.segmented {
+  display: inline-flex;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 1px;
+}
+
+.segmentedBtn {
+  border: 0;
+  border-radius: 4px;
+  padding: 4px 10px;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.segmentedBtn:hover:not(.active) {
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.segmentedBtn.active {
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+.segmented.small .segmentedBtn {
+  padding: 4px 8px;
+  font-size: 10px;
+  min-width: 28px;
+}
+
+.commandLabel {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+.commandSelect {
+  padding: 5px 24px 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238b8ba7' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  min-width: 100px;
+}
+
+.commandSelect.primary {
+  font-weight: 600;
+  min-width: 90px;
+  background-color: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.commandSelect.secondary {
+  min-width: 120px;
+  max-width: 180px;
+}
+
+.commandSelect:hover {
+  border-color: var(--text-secondary);
+}
+
+.commandSelect:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+.topNControl {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.topNInput {
+  width: 44px;
+  padding: 5px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.resetButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.resetButton:hover {
+  background: var(--bg);
+  color: var(--text);
+  border-color: var(--text-secondary);
+}
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.exportButton:hover {
+  color: var(--text);
+  border-color: var(--border);
+  background: var(--panel);
+}
+
+.exportButton svg {
+  opacity: 0.7;
+}
+
+@media (max-width: 1200px) {
+  .commandBarCenter {
+    order: 3;
+    flex: none;
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-light);
+  }
+}
+
+@media (max-width: 900px) {
+  .commandBar {
+    padding: 10px;
+  }
+  
+  .commandBarRow {
+    flex-wrap: wrap;
+  }
+  
+  .commandBarRight {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+}
+
+@media (max-width: 600px) {
+  .commandBarPrimary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  
+  .commandBarGroup {
+    flex-wrap: wrap;
+  }
+  
+  .commandSelect {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .segmented {
+    width: 100%;
+    justify-content: stretch;
+  }
+  
+  .segmentedBtn {
+    flex: 1;
+    text-align: center;
+  }
+}

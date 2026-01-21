@@ -1,0 +1,85 @@
+.tableWrap {
+  overflow: auto;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  margin-top: 10px;
+  max-height: 500px;
+  background: var(--panel);
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  background: var(--panel);
+}
+
+.dataTable th,
+.dataTable td {
+  border-bottom: 1px solid var(--border-light);
+  padding: 6px 8px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.dataTable th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+}
+
+.dataTable th.sortable:hover {
+  background: var(--bg);
+}
+
+.dataTable th {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 2;
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+}
+
+.dataTable tbody tr:hover {
+  background: var(--bg);
+}
+
+.dataTable th:first-child,
+.dataTable td:first-child {
+  text-align: left;
+}
+
+.stickyCol {
+  position: sticky;
+  left: 0;
+  background: var(--panel);
+  z-index: 1;
+  text-align: left !important;
+}
+
+.dataTable tbody tr:hover .stickyCol {
+  background: var(--bg);
+}
+
+.focusCol {
+  background: var(--accent-light) !important;
+}
+
+.sortCol {
+  background: var(--highlight-light) !important;
+}
+
+.filterBadgeContainer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.filterBadgeClear {
+  padding: 4px 8px;
+  font-size: 11px;
+}

@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --text: #1a1a2e;
+  --text-secondary: #4a4a68;
+  --muted: #8b8ba7;
+  --bg: #f8f9fb;
+  --panel: #ffffff;
+  --border: #e2e5e9;
+  --border-light: #eef1f4;
+  --grid: #f4f6f8;
+  
+  --accent: #1e3a5f;
+  --accent-light: #edf2f7;
+  --accent-hover: #2a4a73;
+  
+  --fb-wirtschaft: #dc372d;
+  --fb-gestaltung: #870064;
+  --fb-technik: #00823c;
+  
+  --highlight: #3b82f6;
+  --highlight-light: #eff6ff;
+  
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 4px 12px rgba(0,0,0,0.06);
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --chart-haw-public: #3b82f6;
+  --chart-haw-privat: #93c5fd;
+  --chart-uni-public: #374151;
+  --chart-uni-privat: #9ca3af;
+  --chart-highlight: #1e3a5f;
+  --chart-muted: #d1d5db;
+
+  font-family: var(--font);
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text);
+  background: var(--bg);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+}

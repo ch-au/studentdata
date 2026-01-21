@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import * as d3 from 'd3'
 import type { Point } from '../types'
 
@@ -13,7 +14,7 @@ type Props = {
   height?: number
 }
 
-export function MiniMultiLineChart({ series, width = 240, height = 64 }: Props) {
+function MiniMultiLineChartComponent({ series, width = 240, height = 64 }: Props) {
   const margin = { top: 6, right: 6, bottom: 6, left: 6 }
   const innerW = width - margin.left - margin.right
   const innerH = height - margin.top - margin.bottom
@@ -47,4 +48,6 @@ export function MiniMultiLineChart({ series, width = 240, height = 64 }: Props) 
     </svg>
   )
 }
+
+export const MiniMultiLineChart = memo(MiniMultiLineChartComponent)
 

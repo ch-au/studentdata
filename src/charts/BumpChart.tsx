@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { memo, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import type { BumpSeries } from '../compute/bump'
 import { getLineStyle } from '../style/seriesStyle'
@@ -27,7 +27,7 @@ type TooltipState =
       containerWidth: number
     }
 
-export function BumpChart({ title, years, series, compact = false, hoveredUniversity, fachbereich, highlightMaxRank, highlightMinRank, totalUniversities, displayMode = 'top' }: Props) {
+function BumpChartComponent({ title, years, series, compact = false, hoveredUniversity, fachbereich, highlightMaxRank, highlightMinRank, totalUniversities, displayMode = 'top' }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState>(null)
   
@@ -405,3 +405,5 @@ export function BumpChart({ title, years, series, compact = false, hoveredUniver
     </div>
   )
 }
+
+export const BumpChart = memo(BumpChartComponent)

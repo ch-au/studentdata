@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { useData } from './data/useData'
 import type { Filters, LineKey } from './types'
 import { buildPanels, type ScaleMode } from './compute/aggregate'
@@ -6,12 +6,22 @@ import { IndexLineChart } from './charts/IndexLineChart'
 import { UniversityYearTable } from './components/UniversityYearTable'
 import { buildBumpSeries } from './compute/bump'
 import { BumpChart } from './charts/BumpChart'
-import { getLineStyle } from './style/seriesStyle'
 import { useDashboardState } from './state/useDashboardState'
 import { KpiPanel } from './components/KpiPanel'
 import { DataQualityHints } from './components/DataQualityHints'
 import { CommandBar } from './components/CommandBar'
 import { FachbereichOverview } from './components/FachbereichOverview'
+import { FilterBadge } from './components/FilterBadge'
+
+type InstitutionFilter = null | { typ: 'HAW' | 'Uni'; traeger: 'Public' | 'Privat' }
+
+function getFilterKey(filter: InstitutionFilter): LineKey {
+  if (!filter) return 'HAW_Public'
+  if (filter.typ === 'HAW' && filter.traeger === 'Public') return 'HAW_Public'
+  if (filter.typ === 'HAW' && filter.traeger === 'Privat') return 'HAW_Privat'
+  if (filter.typ === 'Uni' && filter.traeger === 'Public') return 'Uni_Public'
+  return 'Uni_Privat'
+}
 
 function App() {
   const { state, meta } = useData()
@@ -31,7 +41,6 @@ function App() {
       HSMZ: true,
     }
 
-    // Default to last 5 years for compact view
     const defaultYearFrom = Math.max(meta.yearMin, meta.yearMax - 4)
     
     return {
@@ -52,13 +61,24 @@ function App() {
   const [hoverYear, setHoverYear] = useState<number | null>(null)
   const [pinnedYear, setPinnedYear] = useState<number | null>(null)
   const [tableDegree, setTableDegree] = useState<'Alle' | 'Bachelor' | 'Master'>('Alle')
-  const [tableInstitutionFilter, setTableInstitutionFilter] = useState<null | { typ: 'HAW' | 'Uni'; traeger: 'Public' | 'Privat' }>(null)
+  const [tableInstitutionFilter, setTableInstitutionFilter] = useState<InstitutionFilter>(null)
   const [compareUniversities] = useState<string[]>([])
   const [hoveredUniversity, setHoveredUniversity] = useState<string | null>(null)
 
   const effectiveFilters = filters ?? defaultFilters
   const rows = state.status === 'ready' ? state.rows : []
   const focusYear = pinnedYear ?? hoverYear
+
+  const handleLineSelect = useCallback((key: LineKey) => {
+    if (key === 'HAW_Public') setTableInstitutionFilter({ typ: 'HAW', traeger: 'Public' })
+    else if (key === 'HAW_Privat') setTableInstitutionFilter({ typ: 'HAW', traeger: 'Privat' })
+    else if (key === 'Uni_Public') setTableInstitutionFilter({ typ: 'Uni', traeger: 'Public' })
+    else if (key === 'Uni_Privat') setTableInstitutionFilter({ typ: 'Uni', traeger: 'Privat' })
+  }, [])
+
+  const handleClearFilter = useCallback(() => {
+    setTableInstitutionFilter(null)
+  }, [])
 
   const availableStudienfaecher = useMemo(() => {
     const set = new Set<string>()
@@ -100,7 +120,6 @@ function App() {
     topN,
   ])
 
-  // Early returns AFTER hooks (to satisfy Rules of Hooks)
   if (state.status === 'loading') {
     return (
       <div className="appShell">
@@ -115,10 +134,10 @@ function App() {
   }
   if (state.status === 'error') {
     return (
-      <div style={{ padding: 24, maxWidth: 600, margin: '0 auto' }}>
+      <div className="appShell">
         <div className="panel">
-          <h2 style={{ color: '#dc2626', marginBottom: 12 }}>Fehler beim Laden</h2>
-          <pre style={{ whiteSpace: 'pre-wrap', background: '#fef2f2', padding: 16, borderRadius: 8 }}>{state.error}</pre>
+          <h2 className="errorTitle">Fehler beim Laden</h2>
+          <pre className="errorContent">{state.error}</pre>
         </div>
       </div>
     )
@@ -138,7 +157,6 @@ function App() {
 
   return (
     <div className="appShell">
-      {/* Command Bar - replaces sidebar + toolbar */}
       <CommandBar
         view={view}
         setView={setView}
@@ -160,18 +178,14 @@ function App() {
         onReset={reset}
       />
 
-
-      {/* Main content - now full width */}
       <main className="mainContent">
         <div id="chartExportRoot">
           {view === 'detail' ? (
             <>
-              {/* KPI Panel */}
-              <div className="panel" style={{ padding: 12 }}>
+              <div className="panel panelCompact">
                 <KpiPanel rows={rows} filters={effectiveFilters} degree={tableDegree} compact={true} />
               </div>
               
-              {/* Data Quality Hints */}
               <DataQualityHints 
                 panels={panels}
                 yearFrom={effectiveFilters.yearFrom}
@@ -179,7 +193,6 @@ function App() {
                 highlightUniversity={effectiveFilters.highlightUniversity}
               />
               
-              {/* Pinned year indicator */}
               {pinnedYear && (
                 <div className="pinnedYearBar">
                   <span>Jahr fixiert: <strong>{pinnedYear}</strong></span>
@@ -193,21 +206,15 @@ function App() {
                 </div>
               )}
               
-              {/* Charts */}
               <div className="chartsGrid">
                 <IndexLineChart
                   title={tableDegree === 'Alle' ? 'Timeline – Gesamt' : `Timeline – ${tableDegree}`}
                   panels={panels}
                   scaleMode={scaleMode}
                   compact={true}
-                  onHoverYear={(y) => setHoverYear(y)}
-                  onSelectYear={(y) => setPinnedYear(y)}
-                  onSelectLine={(k) => {
-                    if (k === 'HAW_Public') setTableInstitutionFilter({ typ: 'HAW', traeger: 'Public' })
-                    if (k === 'HAW_Privat') setTableInstitutionFilter({ typ: 'HAW', traeger: 'Privat' })
-                    if (k === 'Uni_Public') setTableInstitutionFilter({ typ: 'Uni', traeger: 'Public' })
-                    if (k === 'Uni_Privat') setTableInstitutionFilter({ typ: 'Uni', traeger: 'Privat' })
-                  }}
+                  onHoverYear={setHoverYear}
+                  onSelectYear={setPinnedYear}
+                  onSelectLine={handleLineSelect}
                 />
                 <BumpChart
                   title={tableDegree === 'Alle' ? 'Ranking – Gesamt' : `Ranking – ${tableDegree}`}
@@ -223,40 +230,19 @@ function App() {
                 />
               </div>
               
-              {/* Table section */}
-              <div className="panel" style={{ padding: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div className="panel panelMedium">
+                <div className="tableHeader">
                   <div>
-                    <h3 style={{ marginBottom: 2, fontSize: 14 }}>Detailtabelle</h3>
-                    <p className="muted" style={{ margin: 0, fontSize: 11 }}>
+                    <h3 className="tableHeaderTitle">Detailtabelle</h3>
+                    <p className="muted tableHeaderSubtitle">
                       Studienanfänger pro Hochschule und Jahr
                     </p>
                   </div>
                   {tableInstitutionFilter && (
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      {(() => {
-                        const key =
-                          tableInstitutionFilter.typ === 'HAW' && tableInstitutionFilter.traeger === 'Public'
-                            ? ('HAW_Public' as const)
-                            : tableInstitutionFilter.typ === 'HAW' && tableInstitutionFilter.traeger === 'Privat'
-                              ? ('HAW_Privat' as const)
-                              : tableInstitutionFilter.typ === 'Uni' && tableInstitutionFilter.traeger === 'Public'
-                                ? ('Uni_Public' as const)
-                                : ('Uni_Privat' as const)
-                        const style = getLineStyle(key)
-                        return (
-                          <>
-                            <span className="badge" style={{ borderColor: style.color, color: style.color, background: `${style.color}10` }}>
-                              <span className="dot" style={{ background: style.color, marginRight: 6 }} />
-                              {style.label}
-                            </span>
-                            <button onClick={() => setTableInstitutionFilter(null)} style={{ padding: '4px 8px', fontSize: 11 }}>
-                              ×
-                            </button>
-                          </>
-                        )
-                      })()}
-                    </div>
+                    <FilterBadge 
+                      filterKey={getFilterKey(tableInstitutionFilter)} 
+                      onClear={handleClearFilter} 
+                    />
                   )}
                 </div>
                 <UniversityYearTable
@@ -270,11 +256,10 @@ function App() {
               </div>
             </>
           ) : (
-            /* Overview view - Bachelor/Master side by side */
-            <div className="panel" style={{ padding: 20 }}>
-              <div style={{ marginBottom: 16 }}>
-                <h2 style={{ marginBottom: 4 }}>Fachbereiche im Vergleich</h2>
-                <p className="muted" style={{ margin: 0 }}>
+            <div className="panel panelLarge">
+              <div className="overviewHeader">
+                <h2 className="overviewTitle">Fachbereiche im Vergleich</h2>
+                <p className="muted overviewSubtitle">
                   Index-Entwicklung ({effectiveFilters.yearFrom}–{effectiveFilters.yearTo}). 
                   Klick öffnet Detailansicht.
                 </p>
@@ -288,7 +273,6 @@ function App() {
                 highlightUniversity={effectiveFilters.highlightUniversity}
                 onSelectFachbereich={(fb, degree) => {
                   setFilters({ ...effectiveFilters, fachbereich: fb, studienfach: 'ALL' })
-                  // For Gesamt, use 'Alle' in detail view
                   setTableDegree(degree === 'Gesamt' ? 'Alle' : degree)
                   setView('detail')
                 }}
