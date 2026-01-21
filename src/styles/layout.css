@@ -68,8 +68,8 @@
 
 .appHeader {
   display: flex;
-  align-items: center;
-  padding: 12px 0;
+  flex-direction: column;
+  padding: 12px 0 8px;
   margin-bottom: 8px;
 }
 
@@ -79,6 +79,12 @@
   margin: 0;
   display: flex;
   align-items: center;
+}
+
+.sourceAttributionHeader {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: var(--muted);
 }
 
 .panelCompact {

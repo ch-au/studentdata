@@ -71,8 +71,6 @@ export function CommandBar({
       {/* Row 1: Data Scope - What am I looking at? */}
       <div className="commandBarRow commandBarPrimary">
         <div className="commandBarGroup">
-          <h1 className="appTitle">Studienanfänger Analyse</h1>
-          <div className="commandBarDivider" />
           {/* Fachbereich */}
           <select
             value={filters.fachbereich}

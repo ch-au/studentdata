@@ -162,6 +162,9 @@ function App() {
           Studienanfänger Analyse
           <span className="versionBadge">Vorläufige Version</span>
         </h1>
+        <p className="sourceAttributionHeader">
+          Quelle: Sonderauswertung Statistisches Bundesamt | Anzahl an Studienanfänger:innen bis Ende 2024
+        </p>
       </header>
       <CommandBar
         view={view}
@@ -286,9 +289,6 @@ function App() {
             </div>
           )}
         </div>
-        <footer className="sourceAttribution">
-          Quelle: Sonderauswertung Statistisches Bundesamt | Anzahl an Studienanfänger:innen bis Ende 2024
-        </footer>
       </main>
     </div>
   )
