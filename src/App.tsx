@@ -157,6 +157,12 @@ function App() {
 
   return (
     <div className="appShell">
+      <header className="appHeader">
+        <h1 className="appTitle">
+          Studienanfänger Analyse
+          <span className="versionBadge">Vorläufige Version</span>
+        </h1>
+      </header>
       <CommandBar
         view={view}
         setView={setView}
@@ -280,6 +286,9 @@ function App() {
             </div>
           )}
         </div>
+        <footer className="sourceAttribution">
+          Quelle: Sonderauswertung Statistisches Bundesamt | Anzahl an Studienanfänger:innen bis Ende 2024
+        </footer>
       </main>
     </div>
   )

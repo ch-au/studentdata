@@ -66,6 +66,21 @@
   color: var(--muted);
 }
 
+.appHeader {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  margin-bottom: 8px;
+}
+
+.appTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
 .panelCompact {
   padding: 12px;
 }
