@@ -1,8 +1,8 @@
 .appShell {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px 24px;
+  gap: 16px;
+  padding: 20px 32px;
   max-width: 1600px;
   margin: 0 auto;
   overflow-x: hidden;
@@ -10,7 +10,7 @@
 
 .mainContent {
   display: grid;
-  gap: 12px;
+  gap: 16px;
   max-width: 100%;
   overflow: hidden;
 }
@@ -18,18 +18,23 @@
 .chartsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
-  gap: 12px;
+  gap: 16px;
   max-width: 100%;
 }
 
 .panel {
   background: var(--panel);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow);
   overflow: hidden;
   max-width: 100%;
+  transition: box-shadow 0.2s ease;
+}
+
+.panel:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .panelTitle {
@@ -69,34 +74,37 @@
 .appHeader {
   display: flex;
   flex-direction: column;
-  padding: 12px 0 8px;
-  margin-bottom: 8px;
+  padding: 8px 0 12px;
+  margin-bottom: 4px;
+  border-bottom: 2px solid var(--accent);
 }
 
 .appTitle {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
   margin: 0;
   display: flex;
   align-items: center;
+  color: var(--text);
+  letter-spacing: -0.02em;
 }
 
 .sourceAttributionHeader {
-  margin: 6px 0 0;
-  font-size: 11px;
+  margin: 8px 0 0;
+  font-size: 12px;
   color: var(--muted);
 }
 
 .panelCompact {
-  padding: 12px;
-}
-
-.panelMedium {
   padding: 16px;
 }
 
-.panelLarge {
+.panelMedium {
   padding: 20px;
+}
+
+.panelLarge {
+  padding: 24px;
 }
 
 .tableHeader {

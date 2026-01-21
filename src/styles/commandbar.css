@@ -1,33 +1,24 @@
 .commandBar {
   background: var(--panel);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius);
-  padding: 8px 12px;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.appTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--accent);
-  margin: 0;
-  white-space: nowrap;
-  letter-spacing: -0.02em;
+  gap: 8px;
 }
 
 .commandBarRow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .commandBarPrimary {
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .commandBarSecondary {
@@ -61,35 +52,37 @@
   display: inline-flex;
   background: var(--bg);
   border-radius: var(--radius-sm);
-  padding: 2px;
-  gap: 1px;
+  padding: 3px;
+  gap: 2px;
 }
 
 .segmentedBtn {
   border: 0;
-  border-radius: 4px;
-  padding: 4px 10px;
+  border-radius: var(--radius-xs);
+  padding: 6px 12px;
   background: transparent;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--muted);
+  transition: all 0.15s ease;
 }
 
 .segmentedBtn:hover:not(.active) {
   color: var(--text-secondary);
-  background: transparent;
+  background: rgba(0,0,0,0.03);
 }
 
 .segmentedBtn.active {
   background: var(--panel);
-  color: var(--text);
+  color: var(--accent);
+  font-weight: 600;
   box-shadow: var(--shadow-sm);
 }
 
 .segmented.small .segmentedBtn {
-  padding: 4px 8px;
-  font-size: 10px;
-  min-width: 28px;
+  padding: 5px 10px;
+  font-size: 11px;
+  min-width: 32px;
 }
 
 .commandLabel {
@@ -101,28 +94,34 @@
 }
 
 .commandSelect {
-  padding: 5px 24px 5px 8px;
+  padding: 8px 28px 8px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--panel);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text);
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: all 0.15s ease;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238b8ba7' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 6px center;
+  background-position: right 10px center;
   min-width: 100px;
 }
 
 .commandSelect.primary {
   font-weight: 600;
-  min-width: 90px;
-  background-color: var(--accent-light);
+  min-width: 100px;
+  background-color: var(--accent);
   border-color: var(--accent);
-  color: var(--accent);
+  color: white;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.commandSelect.primary:hover {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .commandSelect.secondary {
@@ -160,21 +159,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--panel);
   color: var(--muted);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
 .resetButton:hover {
   background: var(--bg);
-  color: var(--text);
-  border-color: var(--text-secondary);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .exportButton {
