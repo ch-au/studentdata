@@ -38,17 +38,26 @@ Preferred communication style: Simple, everyday language.
 - No backend API or database - purely frontend application
 
 ### Styling Approach
-- **CSS custom properties** (CSS variables) for theming and design tokens
+- **Modular CSS** with 8 scoped files imported via `/src/styles/index.css`:
+  - `variables.css` - CSS custom properties (colors, spacing, typography)
+  - `base.css` - Reset, typography, form elements
+  - `layout.css` - App shell, grid, panels
+  - `commandbar.css` - Command bar component
+  - `components.css` - UI components (chips, search, popovers)
+  - `charts.css` - Chart-specific styling
+  - `table.css` - Data table styling
+  - `overview.css` - Fachbereich overview grid
 - **Inter font** from Google Fonts
 - Corporate design colors from Hochschule Mainz brand guidelines
 - Faculty-specific color coding (Wirtschaft=red, Gestaltung=magenta, Technik=green)
 
 ### Component Structure
-- `/src/charts/` - D3-based chart components (IndexLineChart, BumpChart, MiniMultiLineChart)
-- `/src/components/` - UI components (filters, tables, export buttons)
+- `/src/charts/` - D3-based chart components (IndexLineChart, BumpChart, MiniMultiLineChart) - wrapped with React.memo for performance
+- `/src/components/` - UI components (filters, tables, export buttons, FilterBadge)
 - `/src/compute/` - Data transformation logic (aggregation, ranking calculations)
-- `/src/style/` - Design tokens and styling utilities
-- `/src/state/` - State management hooks
+- `/src/style/` - Line style utilities
+- `/src/styles/` - Modular CSS files
+- `/src/state/` - State management hooks (useDashboardState for URL-synced filters)
 - `/src/data/` - Data fetching hooks
 
 ### Key Data Types
