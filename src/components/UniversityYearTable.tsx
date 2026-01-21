@@ -17,9 +17,10 @@ type Row = {
   traeger: string
   byYear: Record<number, number>
   total: number
+  trend: number
 }
 
-type SortKey = 'hochschule' | 'typ' | 'traeger' | 'total' | { year: number }
+type SortKey = 'hochschule' | 'typ' | 'traeger' | 'total' | 'trend' | { year: number }
 type SortDir = 'asc' | 'desc'
 type SortMode = 'auto' | 'manual'
 
@@ -151,7 +152,7 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
       const key = `${r.hochschule}|||${r.typ}|||${r.traeger}`
       const existing = map.get(key)
       if (!existing) {
-        map.set(key, { hochschule: r.hochschule, typ: r.typ, traeger: r.traeger, byYear: {}, total: 0 })
+        map.set(key, { hochschule: r.hochschule, typ: r.typ, traeger: r.traeger, byYear: {}, total: 0, trend: 0 })
       }
       const row = map.get(key)!
       row.byYear[r.jahr] = (row.byYear[r.jahr] ?? 0) + r.insgesamt
@@ -159,6 +160,13 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
     }
 
     const list = [...map.values()]
+    
+    // Calculate trend (slope) for each row
+    for (const row of list) {
+      const values = years.map((y) => row.byYear[y] ?? 0)
+      const { slope } = computeSlope(values)
+      row.trend = slope
+    }
     
     // Compute max values for bar scaling
     for (const row of list) {
@@ -176,6 +184,7 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
       if (key === 'typ') return dirMul * a.typ.localeCompare(b.typ)
       if (key === 'traeger') return dirMul * a.traeger.localeCompare(b.traeger)
       if (key === 'total') return dirMul * (a.total - b.total)
+      if (key === 'trend') return dirMul * (a.trend - b.trend)
       if (isYearKey(key)) return dirMul * ((a.byYear[key.year] ?? 0) - (b.byYear[key.year] ?? 0))
       return 0
     })
@@ -212,7 +221,9 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
         <thead>
           <tr>
             <th style={{ width: 40 }}>Rang</th>
-            <th style={{ width: 80 }}>Trend</th>
+            <th className="sortable" style={{ width: 80 }} onClick={() => clickHeader('trend')}>
+              Trend {sameKey(effectiveSort.key, 'trend') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
+            </th>
             <th className="sortable stickyCol" style={{ maxWidth: 220 }} onClick={() => clickHeader('hochschule')}>
               Hochschule {sameKey(effectiveSort.key, 'hochschule') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
             </th>
