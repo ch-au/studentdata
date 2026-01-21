@@ -52,6 +52,11 @@
   font-size: 18px;
 }
 
+.chartSubtitle {
+  margin: 0;
+  font-size: 11px;
+}
+
 .chartPanelsGrid {
   display: grid;
 }

@@ -218,6 +218,7 @@ function App() {
               <div className="chartsGrid">
                 <IndexLineChart
                   title={tableDegree === 'Alle' ? 'Timeline – Gesamt' : `Timeline – ${tableDegree}`}
+                  subtitle={`Veränderung der Studienanfänger:innen zwischen ${effectiveFilters.yearFrom} (=100%) und ${effectiveFilters.yearTo}`}
                   panels={panels}
                   scaleMode={scaleMode}
                   compact={true}

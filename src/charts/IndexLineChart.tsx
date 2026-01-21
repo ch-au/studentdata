@@ -6,6 +6,7 @@ import { ChartTooltip, type TooltipRow } from '../components/ChartTooltip'
 
 type Props = {
   title: string
+  subtitle?: string
   panels: DegreePanel[]
   scaleMode?: ScaleMode
   compact?: boolean
@@ -26,7 +27,7 @@ function lastPoint(s: Series) {
   return s.points[s.points.length - 1]
 }
 
-function IndexLineChartComponent({ title, panels, scaleMode = 'index', compact = false, onHoverYear, onSelectYear, onSelectLine }: Props) {
+function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index', compact = false, onHoverYear, onSelectYear, onSelectLine }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState>(null)
   const [hoveredLine, setHoveredLine] = useState<LineKey | null>(null)
@@ -164,7 +165,10 @@ function IndexLineChartComponent({ title, panels, scaleMode = 'index', compact =
     <div className="panel" ref={containerRef} style={{ position: 'relative', padding: compact ? 12 : 24 }}>
       <div style={{ marginBottom: compact ? 8 : 16 }}>
         <h3 style={{ fontSize: compact ? 14 : 18, fontWeight: 600, marginBottom: 2 }}>{title}</h3>
-        {!compact && (
+        {subtitle && (
+          <p className="muted chartSubtitle">{subtitle}</p>
+        )}
+        {!compact && !subtitle && (
           <div className="muted">
             {isAbsolute ? 'Absolute Studienanfängerzahlen' : isShare ? 'Marktanteil am Gesamtmarkt (Fachbereich)' : 'Index relativ zum Baseline-Jahr (= 100%)'}
           </div>
