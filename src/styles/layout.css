@@ -139,7 +139,7 @@
 @media (max-width: 1400px) {
   .appShell {
     max-width: 100%;
-    padding: 12px 16px;
+    padding: 16px 20px;
   }
   
   .chartsGrid {
@@ -149,13 +149,69 @@
 
 @media (max-width: 900px) {
   .appShell {
-    padding: 10px;
-    gap: 10px;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+  
+  .appTitle {
+    font-size: 18px;
+  }
+  
+  .panel {
+    padding: 16px;
+    border-radius: var(--radius);
   }
 }
 
 @media (max-width: 600px) {
+  .appShell {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  
+  .appHeader {
+    padding: 6px 0 10px;
+  }
+  
+  .appTitle {
+    font-size: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .versionBadge {
+    margin-left: 0;
+  }
+  
+  .sourceAttributionHeader {
+    font-size: 11px;
+  }
+  
   .chartsGrid {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .panel {
+    padding: 12px;
+    border-radius: var(--radius-sm);
+  }
+  
+  .panelCompact {
+    padding: 10px;
+  }
+  
+  .panelMedium {
+    padding: 12px;
+  }
+  
+  .panelLarge {
+    padding: 14px;
+  }
+  
+  .tableHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 }

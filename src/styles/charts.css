@@ -217,3 +217,34 @@
 .tooltip strong {
   font-weight: 700;
 }
+
+@media (max-width: 600px) {
+  .chartTitle {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  
+  .chartTitleCompact {
+    font-size: 13px;
+  }
+  
+  .chartPanelCompact {
+    padding: 10px;
+  }
+  
+  .chartLegend {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .legendItem {
+    font-size: 10px;
+  }
+  
+  .tooltip {
+    max-width: 200px;
+    font-size: 10px;
+    padding: 8px 10px;
+  }
+}

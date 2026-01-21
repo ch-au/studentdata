@@ -231,19 +231,34 @@
 }
 
 @media (max-width: 600px) {
+  .commandBar {
+    padding: 10px;
+    border-radius: var(--radius);
+  }
+  
   .commandBarPrimary {
     flex-direction: column;
     align-items: stretch;
-    gap: 6px;
+    gap: 8px;
   }
   
   .commandBarGroup {
     flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .commandBarDivider {
+    display: none;
   }
   
   .commandSelect {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 28px 10px 12px;
+  }
+  
+  .commandSelect.primary {
     width: 100%;
-    min-width: unset;
   }
   
   .segmented {
@@ -254,5 +269,22 @@
   .segmentedBtn {
     flex: 1;
     text-align: center;
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+  
+  .segmented.small .segmentedBtn {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+  
+  .commandBarRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .resetButton {
+    width: 40px;
+    height: 40px;
   }
 }

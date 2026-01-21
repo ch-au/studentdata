@@ -5,6 +5,7 @@
   margin-top: 10px;
   max-height: 500px;
   background: var(--panel);
+  -webkit-overflow-scrolling: touch;
 }
 
 .dataTable {
