@@ -49,7 +49,7 @@ Formatiere die Antwort in Markdown:
 Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Hauptseite der Hochschule, sondern die spezifische Seite des Studiengangs${niveauText}).`;
 
     const { text } = await generateText({
-      model: openai('gpt-4o'),
+      model: openai('gpt-5-mini'),
       system: systemPrompt,
       prompt: userPrompt,
     });
