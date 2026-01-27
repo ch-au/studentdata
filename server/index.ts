@@ -25,11 +25,11 @@ app.post("/api/university-info", async (req, res) => {
       ? `${studiengang}${niveauText}`
       : "Studienangebots";
 
-    const systemPrompt = `Du bist ein hilfreicher Assistent, der spezifische Informationen über deutsche Hochschulen und Studiengänge recherchiert. Antworte immer auf Deutsch in einfacher, verständlicher Sprache. Formatiere deine Antwort in Markdown. Sei konkret und spezifisch - keine generischen Aussagen. Stelle KEINE Rückfragen - antworte direkt mit den verfügbaren Informationen.`;
+    const systemPrompt = `Du bist ein Studienerater, der spezifische Informationen über Studiengänge an Hochschulen recherchiert. Antworte immer auf Deutsch in einfacher, verständlicher Sprache. Formatiere deine Antwort in Markdown. Sei konkret und spezifisch - keine generischen Aussagen. Stelle KEINE Rückfragen - antworte direkt mit den verfügbaren Informationen.`;
 
     const userPrompt = `Was ist die Value Proposition des ${studiengangText} an der Hochschule ${university}?
 
-Bitte beschreibe hervorgehobene inhaltliche (Themen, Vertiefungen, Spezialisierung), methodische (Art der Vorlesungen, Praxisnähe) und strukturelle Elemente (Infrastruktur der HS, besonderer Mehrwert) in kurzen Bullets.
+Bitte beschreibe hervorgehobene inhaltliche (Themen, Vertiefungen, Spezialisierung, KI Elemente?), methodische (Art der Vorlesungen, Praxisnähe, Online?) und strukturelle Elemente (Infrastruktur der HS, besonderer Mehrwert) in kurzen Bullets.
 
 WICHTIG: Sei spezifisch und nicht generisch! Zum Beispiel:
 - Statt "Online-Unterricht möglich" → "40% Online-Anteil, Präsenzphasen am Wochenende"
@@ -53,7 +53,7 @@ Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Haupts
 WICHTIG: Stelle KEINE Rückfragen! Antworte direkt mit den Informationen, die du hast.`;
 
     const { text } = await generateText({
-      model: openai("gpt-5-nano"),
+      model: openai("gpt-5-mini"),
       system: systemPrompt,
       prompt: userPrompt,
     });

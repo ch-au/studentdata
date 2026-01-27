@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Markdown from 'react-markdown'
 
 type Props = {
@@ -8,12 +8,23 @@ type Props = {
   onClose: () => void
 }
 
+const loadingSteps = [
+  'Recherchiere Informationen im Netz...',
+  'Analysiere Informationen...',
+  'Fasse Informationen zusammen...'
+]
+
 export function InfoModal({ university, studiengang, niveau, onClose }: Props) {
   const [info, setInfo] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [loadingStep, setLoadingStep] = useState(0)
+  const hasFetched = useRef(false)
 
   const fetchInfo = useCallback(async () => {
+    if (hasFetched.current) return
+    hasFetched.current = true
+    
     setLoading(true)
     setError(null)
     
@@ -32,6 +43,7 @@ export function InfoModal({ university, studiengang, niveau, onClose }: Props) {
       setInfo(data.info)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten')
+      hasFetched.current = false
     } finally {
       setLoading(false)
     }
@@ -40,6 +52,14 @@ export function InfoModal({ university, studiengang, niveau, onClose }: Props) {
   useEffect(() => {
     fetchInfo()
   }, [fetchInfo])
+
+  useEffect(() => {
+    if (!loading) return
+    const interval = setInterval(() => {
+      setLoadingStep(prev => (prev + 1) % loadingSteps.length)
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [loading])
 
   return (
     <div className="modalOverlay" onClick={onClose}>
@@ -59,8 +79,24 @@ export function InfoModal({ university, studiengang, niveau, onClose }: Props) {
         <div className="modalBody">
           {loading && (
             <div className="modalLoading">
-              <div className="spinner" />
-              <p>Informationen werden gesucht...</p>
+              <div className="loadingSteps">
+                {loadingSteps.map((step, i) => (
+                  <div key={i} className={`loadingStepItem ${i === loadingStep ? 'active' : ''} ${i < loadingStep ? 'done' : ''}`}>
+                    <div className="loadingStepIcon">
+                      {i < loadingStep ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                      ) : i === loadingStep ? (
+                        <div className="stepSpinner" />
+                      ) : (
+                        <div className="stepCircle" />
+                      )}
+                    </div>
+                    <span>{step.replace('...', '')}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           
