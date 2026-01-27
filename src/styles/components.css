@@ -726,14 +726,11 @@
   white-space: nowrap;
 }
 
-.infoButton:hover {
+.infoButton:hover,
+.infoButton:focus,
+.infoButton:active {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
-}
-
-.infoButton:active {
-  background: var(--accent-hover);
-  color: white;
-  border-color: var(--accent-hover);
+  outline: none;
 }
