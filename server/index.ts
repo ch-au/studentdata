@@ -14,17 +14,25 @@ const openai = createOpenAI({
 
 app.post('/api/university-info', async (req, res) => {
   try {
-    const { university, studiengang } = req.body;
+    const { university, studiengang, niveau } = req.body;
 
     if (!university) {
       return res.status(400).json({ error: 'University is required' });
     }
 
-    const systemPrompt = `Du bist ein hilfreicher Assistent, der Informationen über deutsche Hochschulen und Studiengänge zusammenfasst. Antworte immer auf Deutsch in einfacher, verständlicher Sprache. Formatiere deine Antwort in Markdown mit Überschriften und Stichpunkten.`;
+    const niveauText = niveau && niveau !== 'Alle' ? ` (${niveau})` : '';
+    const studiengangText = studiengang ? `${studiengang}${niveauText}` : 'Studienangebots';
 
-    const userPrompt = `Was ist die Value Proposition des ${studiengang || 'Studienangebots'} an der Hochschule ${university}?
+    const systemPrompt = `Du bist ein hilfreicher Assistent, der spezifische Informationen über deutsche Hochschulen und Studiengänge recherchiert. Antworte immer auf Deutsch in einfacher, verständlicher Sprache. Formatiere deine Antwort in Markdown. Sei konkret und spezifisch - keine generischen Aussagen.`;
+
+    const userPrompt = `Was ist die Value Proposition des ${studiengangText} an der Hochschule ${university}?
 
 Bitte beschreibe hervorgehobene inhaltliche (Themen, Vertiefungen, Spezialisierung), methodische (Art der Vorlesungen, Praxisnähe) und strukturelle Elemente (Infrastruktur der HS, besonderer Mehrwert) in kurzen Bullets.
+
+WICHTIG: Sei spezifisch und nicht generisch! Zum Beispiel:
+- Statt "Online-Unterricht möglich" → "40% Online-Anteil, Präsenzphasen am Wochenende"
+- Statt "Praxisnah" → "Pflichtpraktikum im 5. Semester (mind. 20 Wochen)"
+- Statt "Internationale Ausrichtung" → "Doppelabschluss mit Université Paris-Saclay möglich"
 
 Formatiere die Antwort in Markdown:
 
@@ -38,9 +46,7 @@ Formatiere die Antwort in Markdown:
 - ...
 
 ## Quelle
-Gib am Ende unbedingt die URL zur offiziellen Webseite des Studiengangs oder der Hochschule als Quelle an.
-
-Halte die Antworten kurz und prägnant. Verwende einfache Sprache.`;
+Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Hauptseite der Hochschule, sondern die spezifische Seite des Studiengangs${niveauText}).`;
 
     const { text } = await generateText({
       model: openai('gpt-4o'),

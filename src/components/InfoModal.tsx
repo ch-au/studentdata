@@ -4,10 +4,11 @@ import Markdown from 'react-markdown'
 type Props = {
   university: string
   studiengang: string | null
+  niveau: string | null
   onClose: () => void
 }
 
-export function InfoModal({ university, studiengang, onClose }: Props) {
+export function InfoModal({ university, studiengang, niveau, onClose }: Props) {
   const [info, setInfo] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,7 +21,7 @@ export function InfoModal({ university, studiengang, onClose }: Props) {
       const response = await fetch('/api/university-info', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ university, studiengang }),
+        body: JSON.stringify({ university, studiengang, niveau }),
       })
       
       if (!response.ok) {
@@ -34,7 +35,7 @@ export function InfoModal({ university, studiengang, onClose }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [university, studiengang])
+  }, [university, studiengang, niveau])
 
   useEffect(() => {
     fetchInfo()
@@ -46,7 +47,7 @@ export function InfoModal({ university, studiengang, onClose }: Props) {
         <div className="modalHeader">
           <div>
             <h2 className="modalTitle">{university}</h2>
-            {studiengang && <p className="modalSubtitle">{studiengang}</p>}
+            {studiengang && <p className="modalSubtitle">{studiengang}{niveau && niveau !== 'Alle' ? ` (${niveau})` : ''}</p>}
           </div>
           <button className="modalClose" onClick={onClose} aria-label="Schließen">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
