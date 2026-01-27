@@ -11,6 +11,22 @@ Key capabilities:
 - **Data export**: SVG, PNG, and CSV export functionality
 - **URL-based state persistence**: Filter configurations are stored in URL parameters
 
+## Recent Changes (January 2026)
+
+### Visual Improvements to Data Table
+- **Enhanced Sparklines**: Larger (80x28px) with gradient fill area and improved trend arrows
+- **Improved Data Bars**: 12px height with gradient fill and smooth transitions
+- **Delta Badges**: Colored pill badges with trend icons (up/down/neutral) replacing plain text
+- **Zebra Striping**: Alternating row backgrounds for better readability
+- **Stronger Hover States**: Accent-colored hover with subtle box shadow
+- **Year Column Separators**: Visual grouping between metadata and year data columns
+- **Highlight Row Styling**: Accent border for highlighted university rows
+
+### Chart Panel Polish
+- **Updated Legend**: Pill-badge style with rounded corners and hover effects
+- **Panel Hover Effects**: Subtle shadow enhancement on hover
+- **Improved Transitions**: Smooth 150-250ms transitions throughout
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
