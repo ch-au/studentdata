@@ -48,10 +48,12 @@ function computeSlope(values: number[]): { slope: number; color: string; arrow: 
   return { slope: change, color: '#9ca3af', arrow: '→' }
 }
 
+let sparklineIdCounter = 0
+
 function Sparkline({ values }: { values: number[] }) {
-  const w = 56
-  const h = 18
-  const pad = 2
+  const w = 80
+  const h = 28
+  const pad = 3
   const vals = values.map((v) => (Number.isFinite(v) ? v : 0))
   const min = Math.min(...vals)
   const max = Math.max(...vals)
@@ -63,21 +65,45 @@ function Sparkline({ values }: { values: number[] }) {
   })
   const { color, arrow } = computeSlope(vals)
   
+  const areaPath = vals.length > 0 
+    ? `M ${pad},${h - pad} ` + 
+      pts.map((pt) => `L ${pt}`).join(' ') + 
+      ` L ${w - pad},${h - pad} Z`
+    : ''
+
+  const gradientId = useMemo(() => `sparkGrad-${++sparklineIdCounter}`, [])
+  
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <svg width={w} height={h} role="img" aria-label="trend">
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <svg width={w} height={h} role="img" aria-label="trend" style={{ overflow: 'visible' }}>
+        <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor={color} stopOpacity={0.25} />
+            <stop offset="100%" stopColor={color} stopOpacity={0.05} />
+          </linearGradient>
+        </defs>
+        <path d={areaPath} fill={`url(#${gradientId})`} />
         <polyline points={pts.join(' ')} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-        {/* End dot */}
         {vals.length > 0 && (
           <circle
             cx={w - pad}
             cy={h - pad - ((vals[vals.length - 1] - min) / denom) * (h - 2 * pad)}
-            r={3}
+            r={4}
             fill={color}
+            stroke="white"
+            strokeWidth={1.5}
           />
         )}
       </svg>
-      <span style={{ color, fontWeight: 600, fontSize: 10, minWidth: 16 }}>
+      <span style={{ 
+        color, 
+        fontWeight: 700, 
+        fontSize: 12, 
+        minWidth: 18,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
         {arrow}
       </span>
     </div>
@@ -87,31 +113,68 @@ function Sparkline({ values }: { values: number[] }) {
 function BarCell({ value, maxValue }: { value: number; maxValue: number }) {
   const pct = maxValue > 0 ? (value / maxValue) * 100 : 0
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 70 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 80 }}>
       <div style={{ 
         flex: 1, 
-        height: 5, 
+        height: 12, 
         background: 'var(--border-light)', 
-        borderRadius: 3,
-        overflow: 'hidden'
+        borderRadius: 6,
+        overflow: 'hidden',
+        position: 'relative',
       }}>
         <div style={{ 
           width: `${Math.min(100, pct)}%`, 
           height: '100%', 
-          background: 'var(--accent)',
-          opacity: 0.7,
-          borderRadius: 3
+          background: 'linear-gradient(90deg, var(--accent) 0%, var(--accent-muted) 100%)',
+          borderRadius: 6,
+          transition: 'width 0.3s ease-out',
         }} />
       </div>
-      <span style={{ fontVariantNumeric: 'tabular-nums', minWidth: 42, textAlign: 'right', fontSize: 11 }}>
+      <span style={{ 
+        fontVariantNumeric: 'tabular-nums', 
+        minWidth: 46, 
+        textAlign: 'right', 
+        fontSize: 12,
+        fontWeight: 500,
+        color: value > 0 ? 'var(--text)' : 'var(--muted)',
+      }}>
         {value > 0 ? value.toLocaleString('de-DE') : '—'}
       </span>
     </div>
   )
 }
 
+function DeltaBadge({ change }: { change: number }) {
+  const isPositive = change > 0
+  const isNegative = change < 0
+  
+  const bgColor = isPositive ? 'var(--success-light)' : isNegative ? 'var(--danger-light)' : 'var(--border-light)'
+  const textColor = isPositive ? 'var(--success)' : isNegative ? 'var(--danger)' : 'var(--muted)'
+  const icon = isPositive ? '↑' : isNegative ? '↓' : '→'
+  
+  return (
+    <div style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      padding: '4px 8px',
+      borderRadius: 6,
+      background: bgColor,
+      color: textColor,
+      fontWeight: 600,
+      fontSize: 11,
+      whiteSpace: 'nowrap',
+    }}>
+      <span style={{ fontSize: 10 }}>{icon}</span>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {isPositive ? '+' : ''}{Math.round(change).toLocaleString('de-DE')}
+      </span>
+    </div>
+  )
+}
+
 export function UniversityYearTable({ rows, filters, degree, focusYear, institutionFilter, onHoverUniversity }: Props) {
-  const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+  const [, setHoveredRow] = useState<string | null>(null)
   const years = useMemo(() => {
     const ys: number[] = []
     for (let y = filters.yearFrom; y <= filters.yearTo; y++) ys.push(y)
@@ -238,16 +301,17 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
             <th className="sortable" style={{ width: 72 }} onClick={() => clickHeader('traeger')}>
               Träger {sameKey(effectiveSort.key, 'traeger') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
             </th>
-            {years.map((y) => (
+            {years.map((y, i) => (
               <th
                 key={y}
                 className={[
                   'sortable',
                   focusColYear === y ? 'focusCol' : '',
                   sortYear === y ? 'sortCol' : '',
-                ].join(' ')}
+                  i === 0 ? 'yearColSeparator' : '',
+                ].filter(Boolean).join(' ')}
                 onClick={() => clickHeader({ year: y })}
-                style={{ minWidth: 90 }}
+                style={{ minWidth: 100 }}
               >
                 {y} {sortYear === y ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
               </th>
@@ -263,21 +327,12 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
         <tbody>
           {table.list.map((r, idx) => {
             const isHighlight = r.hochschule === filters.highlightUniversity
-            const isHovered = hoveredRow === r.hochschule
             const rowKey = `${r.hochschule}|||${r.typ}|||${r.traeger}`
             
             return (
               <tr 
                 key={rowKey}
-                style={{
-                  background: isHighlight 
-                    ? 'var(--accent-light)' 
-                    : isHovered 
-                      ? 'var(--bg)' 
-                      : undefined,
-                  transition: 'background 0.1s',
-                  cursor: 'pointer',
-                }}
+                className={isHighlight ? 'highlightRow' : undefined}
                 onMouseEnter={() => {
                   setHoveredRow(r.hochschule)
                   onHoverUniversity?.(r.hochschule)
@@ -300,14 +355,9 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
                 <td 
                   className="stickyCol" 
                   style={{ 
-                    background: isHighlight 
-                      ? 'var(--accent-light)' 
-                      : isHovered 
-                        ? 'var(--bg)' 
-                        : undefined,
                     fontWeight: isHighlight ? 700 : 500,
                     color: isHighlight ? 'var(--accent)' : 'var(--text)',
-                    maxWidth: 220,
+                    maxWidth: 240,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -348,11 +398,13 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
                     )
                   })()}
                 </td>
-                {years.map((y) => (
+                {years.map((y, i) => (
                   <td 
                     key={y} 
-                    className={focusColYear === y ? 'focusCol' : undefined}
-                    style={isHighlight && focusColYear === y ? { background: 'var(--accent-light)' } : undefined}
+                    className={[
+                      focusColYear === y ? 'focusCol' : '',
+                      i === 0 ? 'yearColSeparator' : '',
+                    ].filter(Boolean).join(' ') || undefined}
                   >
                     <BarCell value={r.byYear[y] ?? 0} maxValue={maxByYear[y] ?? 1} />
                   </td>
@@ -360,12 +412,8 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
                 <td>
                   <BarCell value={Math.round(r.total)} maxValue={maxTotal} />
                 </td>
-                <td style={{ 
-                  textAlign: 'right',
-                  fontWeight: 600,
-                  color: r.change > 0 ? 'var(--success)' : r.change < 0 ? 'var(--danger)' : 'var(--muted)',
-                }}>
-                  {r.change > 0 ? '+' : ''}{Math.round(r.change).toLocaleString('de-DE')}
+                <td style={{ textAlign: 'right' }}>
+                  <DeltaBadge change={r.change} />
                 </td>
               </tr>
             )
