@@ -265,8 +265,7 @@ function App() {
                   focusYear={focusYear}
                   institutionFilter={tableInstitutionFilter}
                   onHoverUniversity={setHoveredUniversity}
-                  onShowInfo={setInfoModalUniversity}
-                />
+                                  />
               </div>
             </>
           ) : (

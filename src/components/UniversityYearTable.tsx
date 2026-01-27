@@ -9,7 +9,6 @@ type Props = {
   focusYear: number | null
   institutionFilter?: null | { typ: 'HAW' | 'Uni'; traeger: 'Public' | 'Privat' }
   onHoverUniversity?: (university: string | null) => void
-  onShowInfo?: (university: string) => void
 }
 
 type Row = {
@@ -19,9 +18,10 @@ type Row = {
   byYear: Record<number, number>
   total: number
   trend: number
+  change: number
 }
 
-type SortKey = 'hochschule' | 'typ' | 'traeger' | 'total' | 'trend' | { year: number }
+type SortKey = 'hochschule' | 'typ' | 'traeger' | 'total' | 'trend' | 'change' | { year: number }
 type SortDir = 'asc' | 'desc'
 type SortMode = 'auto' | 'manual'
 
@@ -110,7 +110,7 @@ function BarCell({ value, maxValue }: { value: number; maxValue: number }) {
   )
 }
 
-export function UniversityYearTable({ rows, filters, degree, focusYear, institutionFilter, onHoverUniversity, onShowInfo }: Props) {
+export function UniversityYearTable({ rows, filters, degree, focusYear, institutionFilter, onHoverUniversity }: Props) {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null)
   const years = useMemo(() => {
     const ys: number[] = []
@@ -153,7 +153,7 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
       const key = `${r.hochschule}|||${r.typ}|||${r.traeger}`
       const existing = map.get(key)
       if (!existing) {
-        map.set(key, { hochschule: r.hochschule, typ: r.typ, traeger: r.traeger, byYear: {}, total: 0, trend: 0 })
+        map.set(key, { hochschule: r.hochschule, typ: r.typ, traeger: r.traeger, byYear: {}, total: 0, trend: 0, change: 0 })
       }
       const row = map.get(key)!
       row.byYear[r.jahr] = (row.byYear[r.jahr] ?? 0) + r.insgesamt
@@ -162,11 +162,14 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
 
     const list = [...map.values()]
     
-    // Calculate trend (slope) for each row
+    // Calculate trend (slope) and change for each row
     for (const row of list) {
       const values = years.map((y) => row.byYear[y] ?? 0)
       const { slope } = computeSlope(values)
       row.trend = slope
+      const firstYear = years[0]
+      const lastYear = years[years.length - 1]
+      row.change = (row.byYear[lastYear] ?? 0) - (row.byYear[firstYear] ?? 0)
     }
     
     // Compute max values for bar scaling
@@ -186,6 +189,7 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
       if (key === 'traeger') return dirMul * a.traeger.localeCompare(b.traeger)
       if (key === 'total') return dirMul * (a.total - b.total)
       if (key === 'trend') return dirMul * (a.trend - b.trend)
+      if (key === 'change') return dirMul * (a.change - b.change)
       if (isYearKey(key)) return dirMul * ((a.byYear[key.year] ?? 0) - (b.byYear[key.year] ?? 0))
       return 0
     })
@@ -251,7 +255,9 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
             <th className="sortable" style={{ minWidth: 110 }} onClick={() => clickHeader('total')}>
               Summe {sameKey(effectiveSort.key, 'total') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
             </th>
-            <th style={{ minWidth: 90 }}>Details</th>
+            <th className="sortable" style={{ minWidth: 100 }} onClick={() => clickHeader('change')}>
+              Δ {sameKey(effectiveSort.key, 'change') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -354,16 +360,12 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
                 <td>
                   <BarCell value={Math.round(r.total)} maxValue={maxTotal} />
                 </td>
-                <td>
-                  <button 
-                    className="infoButton"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onShowInfo?.(r.hochschule)
-                    }}
-                  >
-                    Mehr erfahren
-                  </button>
+                <td style={{ 
+                  textAlign: 'right',
+                  fontWeight: 600,
+                  color: r.change > 0 ? 'var(--success)' : r.change < 0 ? 'var(--danger)' : 'var(--muted)',
+                }}>
+                  {r.change > 0 ? '+' : ''}{Math.round(r.change).toLocaleString('de-DE')}
                 </td>
               </tr>
             )
