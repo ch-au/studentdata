@@ -2,8 +2,6 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-import { createOpenAI } from "@ai-sdk/openai";
-import { generateText } from "ai";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,11 +24,6 @@ if (isProduction) {
     }
   }));
 }
-
-const openai = createOpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
 
 app.post("/api/university-info", async (req, res) => {
   try {
@@ -72,19 +65,40 @@ Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Haupts
 
 WICHTIG: Stelle KEINE Rückfragen! Antworte direkt mit den Informationen, die du hast.`;
 
-    const modelName = "gpt-5-nano";
+    const modelName = "google/gemini-2.5-flash-preview";
     const startTime = Date.now();
     
-    const { text } = await generateText({
-      model: openai(modelName),
-      system: systemPrompt,
-      prompt: userPrompt,
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://studienanfaenger.replit.app",
+        "X-Title": "Studienanfaenger Dashboard"
+      },
+      body: JSON.stringify({
+        model: modelName,
+        plugins: [{ id: "web", max_results: 5 }],
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ]
+      })
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("OpenRouter API error:", errorText);
+      throw new Error(`OpenRouter API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content || "Keine Informationen gefunden.";
     
     const latencyMs = Date.now() - startTime;
     
     console.log("\n========== AI MODEL CALL ==========");
-    console.log(`Model: ${modelName}`);
+    console.log(`Model: ${modelName} (with web search)`);
     console.log(`Latency: ${latencyMs}ms (${(latencyMs / 1000).toFixed(2)}s)`);
     console.log(`University: ${university}`);
     console.log(`Studiengang: ${studiengang || "Alle"}`);
