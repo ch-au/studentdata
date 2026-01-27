@@ -4,15 +4,30 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npx tsx server/index.ts & vite",
+    "dev:client": "vite",
+    "dev:server": "npx tsx server/index.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.19",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "ai": "^6.0.50",
+    "cors": "^2.8.6",
     "d3": "^7.9.0",
+    "drizzle-zod": "^0.8.3",
+    "express": "^5.2.1",
+    "openai": "^6.16.0",
+    "p-limit": "^7.2.0",
+    "p-retry": "^7.1.1",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "tsx": "^4.21.0",
+    "zod": "^4.3.6",
+    "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

@@ -9,6 +9,7 @@ type Props = {
   focusYear: number | null
   institutionFilter?: null | { typ: 'HAW' | 'Uni'; traeger: 'Public' | 'Privat' }
   onHoverUniversity?: (university: string | null) => void
+  onShowInfo?: (university: string) => void
 }
 
 type Row = {
@@ -109,7 +110,7 @@ function BarCell({ value, maxValue }: { value: number; maxValue: number }) {
   )
 }
 
-export function UniversityYearTable({ rows, filters, degree, focusYear, institutionFilter, onHoverUniversity }: Props) {
+export function UniversityYearTable({ rows, filters, degree, focusYear, institutionFilter, onHoverUniversity, onShowInfo }: Props) {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null)
   const years = useMemo(() => {
     const ys: number[] = []
@@ -250,6 +251,7 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
             <th className="sortable" style={{ minWidth: 110 }} onClick={() => clickHeader('total')}>
               Summe {sameKey(effectiveSort.key, 'total') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
             </th>
+            <th style={{ minWidth: 90 }}>Info</th>
           </tr>
         </thead>
         <tbody>
@@ -352,12 +354,23 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
                 <td>
                   <BarCell value={Math.round(r.total)} maxValue={maxTotal} />
                 </td>
+                <td>
+                  <button 
+                    className="infoButton"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onShowInfo?.(r.hochschule)
+                    }}
+                  >
+                    Mehr erfahren
+                  </button>
+                </td>
               </tr>
             )
           })}
           {table.list.length === 0 && (
             <tr>
-              <td colSpan={6 + years.length} style={{ textAlign: 'center', padding: 32, color: 'var(--muted)' }}>
+              <td colSpan={7 + years.length} style={{ textAlign: 'center', padding: 32, color: 'var(--muted)' }}>
                 Keine Daten für diese Filter gefunden.
               </td>
             </tr>

@@ -12,6 +12,7 @@ import { DataQualityHints } from './components/DataQualityHints'
 import { CommandBar } from './components/CommandBar'
 import { FachbereichOverview } from './components/FachbereichOverview'
 import { FilterBadge } from './components/FilterBadge'
+import { InfoModal } from './components/InfoModal'
 
 type InstitutionFilter = null | { typ: 'HAW' | 'Uni'; traeger: 'Public' | 'Privat' }
 
@@ -62,6 +63,7 @@ function App() {
   const [pinnedYear, setPinnedYear] = useState<number | null>(null)
   const [tableDegree, setTableDegree] = useState<'Alle' | 'Bachelor' | 'Master'>('Alle')
   const [tableInstitutionFilter, setTableInstitutionFilter] = useState<InstitutionFilter>(null)
+  const [infoModalUniversity, setInfoModalUniversity] = useState<string | null>(null)
   const [compareUniversities] = useState<string[]>([])
   const [hoveredUniversity, setHoveredUniversity] = useState<string | null>(null)
 
@@ -262,6 +264,7 @@ function App() {
                   focusYear={focusYear}
                   institutionFilter={tableInstitutionFilter}
                   onHoverUniversity={setHoveredUniversity}
+                  onShowInfo={setInfoModalUniversity}
                 />
               </div>
             </>
@@ -291,6 +294,14 @@ function App() {
           )}
         </div>
       </main>
+      
+      {infoModalUniversity && (
+        <InfoModal
+          university={infoModalUniversity}
+          studiengang={effectiveFilters?.studienfach !== 'ALL' ? effectiveFilters?.studienfach : effectiveFilters?.fachbereich}
+          onClose={() => setInfoModalUniversity(null)}
+        />
+      )}
     </div>
   )
 }
