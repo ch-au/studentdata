@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback } from 'react'
 import { useData } from './data/useData'
 import type { Filters, LineKey } from './types'
-import { buildPanels, type ScaleMode } from './compute/aggregate'
+import { buildPanels, buildHoveredUniversitySeries, type ScaleMode } from './compute/aggregate'
 import { IndexLineChart } from './charts/IndexLineChart'
 import { UniversityYearTable } from './components/UniversityYearTable'
 import { buildBumpSeries } from './compute/bump'
@@ -123,6 +123,11 @@ function App() {
     topN,
   ])
 
+  const hoveredUniversitySeries = useMemo(() => {
+    if (!effectiveFilters || !hoveredUniversity) return null
+    return buildHoveredUniversitySeries(rows, effectiveFilters, hoveredUniversity, scaleMode, tableDegree)
+  }, [rows, effectiveFilters, hoveredUniversity, scaleMode, tableDegree])
+
   if (state.status === 'loading') {
     return (
       <div className="appShell">
@@ -228,6 +233,7 @@ function App() {
                   onHoverYear={setHoverYear}
                   onSelectYear={setPinnedYear}
                   onSelectLine={handleLineSelect}
+                  hoveredUniversitySeries={hoveredUniversitySeries}
                 />
                 <BumpChart
                   title={tableDegree === 'Alle' ? 'Ranking – Gesamt' : `Ranking – ${tableDegree}`}

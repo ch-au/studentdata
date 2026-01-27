@@ -13,6 +13,7 @@ type Props = {
   onHoverYear?: (year: number | null) => void
   onSelectYear?: (year: number) => void
   onSelectLine?: (key: LineKey) => void
+  hoveredUniversitySeries?: Series | null
 }
 
 type TooltipState = null | {
@@ -27,7 +28,7 @@ function lastPoint(s: Series) {
   return s.points[s.points.length - 1]
 }
 
-function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index', compact = false, onHoverYear, onSelectYear, onSelectLine }: Props) {
+function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index', compact = false, onHoverYear, onSelectYear, onSelectLine, hoveredUniversitySeries }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState>(null)
   const [hoveredLine, setHoveredLine] = useState<LineKey | null>(null)
@@ -293,6 +294,23 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
                     />
                   )
                 })}
+                {/* Hovered university reference line */}
+                {hoveredUniversitySeries && hoveredUniversitySeries.points.length > 0 && (
+                  <path
+                    d={line(hoveredUniversitySeries.points.map((p) => ({ year: p.year, index: p.index }))) ?? undefined}
+                    fill="none"
+                    stroke={hoveredUniversitySeries.color}
+                    strokeWidth={compact ? 2.5 : 3.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeDasharray={compact ? "4 3" : "6 4"}
+                    opacity={0.9}
+                    style={{ 
+                      pointerEvents: 'none',
+                      transition: 'opacity 0.15s',
+                    }}
+                  />
+                )}
               </g>
 
               {/* Points - clickable with hover effect */}
@@ -325,6 +343,23 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
                     />
                   ))
                 })}
+                {/* Hovered university reference points */}
+                {hoveredUniversitySeries && hoveredUniversitySeries.points.map((p) => (
+                  <circle
+                    key={`hovered-${p.year}`}
+                    cx={x(p.year)}
+                    cy={y(p.index)}
+                    r={compact ? 3 : 4}
+                    fill={hoveredUniversitySeries.color}
+                    stroke="#fff"
+                    strokeWidth={compact ? 1 : 1.5}
+                    opacity={0.9}
+                    style={{ 
+                      pointerEvents: 'none',
+                      transition: 'opacity 0.15s',
+                    }}
+                  />
+                ))}
               </g>
             </svg>
             {/* Legend below chart */}

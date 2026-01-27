@@ -247,10 +247,11 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                     key={s.name}
                     d={line(s.points.map((p) => ({ year: p.year, rank: p.rank }))) ?? undefined}
                     fill="none"
-                    stroke={isHovered ? '#3b82f6' : '#cbd5e1'}
+                    stroke={isHovered ? '#059669' : '#cbd5e1'}
                     strokeWidth={isHovered ? (compact ? 2.5 : 3.5) : (compact ? 1.5 : 2.5)}
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    strokeDasharray={isHovered ? (compact ? "4 3" : "6 4") : undefined}
                     opacity={hoveredSeries && !isHovered ? 0.3 : isHovered ? 1 : 0.6}
                     style={{ transition: 'opacity 0.15s, stroke-width 0.15s, stroke 0.15s' }}
                   />
@@ -270,7 +271,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                     cx={x(p.year)}
                     cy={y(p.rank)}
                     r={isHovered ? (compact ? 4 : 5) : (compact ? 2.5 : 4)}
-                    fill={isHovered ? '#3b82f6' : '#cbd5e1'}
+                    fill={isHovered ? '#059669' : '#cbd5e1'}
                     stroke="#fff"
                     strokeWidth={compact ? 1 : 2}
                     opacity={hoveredSeries && !isHovered ? 0.3 : 1}

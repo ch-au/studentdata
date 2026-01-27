@@ -147,6 +147,78 @@ export function buildPanels(
   return panels
 }
 
+export function buildHoveredUniversitySeries(
+  rows: DataRow[],
+  filters: Filters,
+  hoveredUniversity: string | null,
+  scaleMode: ScaleMode = 'index',
+  degreeFilter: 'Alle' | 'Bachelor' | 'Master' = 'Alle',
+): Series | null {
+  if (!hoveredUniversity) return null
+  if (hoveredUniversity === filters.highlightUniversity) return null
+
+  const filtered = rows.filter((r) => {
+    if (filters.fachbereich && r.fachbereich !== filters.fachbereich) return false
+    if (filters.studienfach !== 'ALL' && r.studienfach !== filters.studienfach) return false
+    if (r.jahr < filters.yearFrom || r.jahr > filters.yearTo) return false
+    if (degreeFilter !== 'Alle' && r.abschluss !== degreeFilter) return false
+    return r.hochschule === hoveredUniversity
+  })
+
+  if (filtered.length === 0) return null
+
+  const m = new Map<number, number>()
+  for (const r of filtered) {
+    m.set(r.jahr, (m.get(r.jahr) ?? 0) + r.insgesamt)
+  }
+
+  const totalsByYear = new Map<number, number>()
+  for (const r of rows) {
+    if (filters.fachbereich && r.fachbereich !== filters.fachbereich) continue
+    if (filters.studienfach !== 'ALL' && r.studienfach !== filters.studienfach) continue
+    if (r.jahr < filters.yearFrom || r.jahr > filters.yearTo) continue
+    if (degreeFilter !== 'Alle' && r.abschluss !== degreeFilter) continue
+    if (r.traeger !== 'Public' && r.traeger !== 'Privat') continue
+    totalsByYear.set(r.jahr, (totalsByYear.get(r.jahr) ?? 0) + r.insgesamt)
+  }
+
+  let points: Point[]
+  if (scaleMode === 'index') {
+    const years = [...m.keys()].sort((a, b) => a - b)
+    const baseVal = m.get(filters.baselineYear) ?? m.get(years[0]) ?? 0
+    points = years.map((year) => {
+      const value = m.get(year) ?? 0
+      const index = baseVal === 0 ? 0 : (value / baseVal) * 100
+      return { year, value, index }
+    })
+  } else if (scaleMode === 'share') {
+    const years = [...m.keys()].sort((a, b) => a - b)
+    points = years.map((year) => {
+      const value = m.get(year) ?? 0
+      const total = totalsByYear.get(year) ?? 0
+      const share = total === 0 ? 0 : (value / total) * 100
+      return { year, value, index: share }
+    })
+  } else {
+    const years = [...m.keys()].sort((a, b) => a - b)
+    points = years.map((year) => {
+      const value = m.get(year) ?? 0
+      return { year, value, index: value }
+    })
+  }
+
+  const shortName = hoveredUniversity.length > 25 
+    ? hoveredUniversity.substring(0, 22) + '...' 
+    : hoveredUniversity
+
+  return {
+    key: 'compare_0' as LineKey,
+    label: shortName,
+    color: '#059669',
+    points,
+  }
+}
+
 export function buildOverviewIndex(
   rows: DataRow[],
   opts: {
