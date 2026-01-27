@@ -52,11 +52,28 @@ Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Haupts
 
 WICHTIG: Stelle KEINE Rückfragen! Antworte direkt mit den Informationen, die du hast.`;
 
+    const modelName = "gpt-5-nano";
+    const startTime = Date.now();
+    
     const { text } = await generateText({
-      model: openai("gpt-5-mini"),
+      model: openai(modelName),
       system: systemPrompt,
       prompt: userPrompt,
     });
+    
+    const latencyMs = Date.now() - startTime;
+    
+    console.log("\n========== AI MODEL CALL ==========");
+    console.log(`Model: ${modelName}`);
+    console.log(`Latency: ${latencyMs}ms (${(latencyMs / 1000).toFixed(2)}s)`);
+    console.log(`University: ${university}`);
+    console.log(`Studiengang: ${studiengang || "Alle"}`);
+    console.log(`Niveau: ${niveau || "Alle"}`);
+    console.log("--- SYSTEM PROMPT ---");
+    console.log(systemPrompt);
+    console.log("--- USER PROMPT ---");
+    console.log(userPrompt);
+    console.log("====================================\n");
 
     res.json({
       university,
