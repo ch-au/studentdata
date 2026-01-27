@@ -300,7 +300,7 @@ function App() {
         <InfoModal
           university={infoModalUniversity}
           studiengang={effectiveFilters?.studienfach !== 'ALL' ? effectiveFilters?.studienfach : effectiveFilters?.fachbereich}
-          niveau={effectiveFilters?.abschluss || null}
+          niveau={tableDegree !== 'Alle' ? tableDegree : effectiveFilters?.abschluss || null}
           onClose={() => setInfoModalUniversity(null)}
         />
       )}
