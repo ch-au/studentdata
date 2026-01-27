@@ -10,19 +10,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const isProduction = process.env.NODE_ENV === "production" || process.env.REPLIT_DEPLOYMENT === "1";
+const isProduction =
+  process.env.NODE_ENV === "production" ||
+  process.env.REPLIT_DEPLOYMENT === "1";
 if (isProduction) {
-  app.use(express.static(path.join(__dirname, "../dist"), {
-    etag: true,
-    lastModified: true,
-    setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.html')) {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      } else {
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-      }
-    }
-  }));
+  app.use(
+    express.static(path.join(__dirname, "../dist"), {
+      etag: true,
+      lastModified: true,
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith(".html")) {
+          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        } else {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      },
+    }),
+  );
 }
 
 app.post("/api/university-info", async (req, res) => {
@@ -65,26 +69,29 @@ Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Haupts
 
 WICHTIG: Stelle KEINE Rückfragen! Antworte direkt mit den Informationen, die du hast.`;
 
-    const modelName = "gemini/gemini-3-flash-preview";
+    const modelName = "google/gemini-3-flash-preview";
     const startTime = Date.now();
-    
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://studienanfaenger.replit.app",
-        "X-Title": "Studienanfaenger Dashboard"
+
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://studienanfaenger.replit.app",
+          "X-Title": "Studienanfaenger Dashboard",
+        },
+        body: JSON.stringify({
+          model: modelName,
+          plugins: [{ id: "web", max_results: 5 }],
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        }),
       },
-      body: JSON.stringify({
-        model: modelName,
-        plugins: [{ id: "web", max_results: 5 }],
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ]
-      })
-    });
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -93,10 +100,11 @@ WICHTIG: Stelle KEINE Rückfragen! Antworte direkt mit den Informationen, die du
     }
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || "Keine Informationen gefunden.";
-    
+    const text =
+      data.choices?.[0]?.message?.content || "Keine Informationen gefunden.";
+
     const latencyMs = Date.now() - startTime;
-    
+
     console.log("\n========== AI MODEL CALL ==========");
     console.log(`Model: ${modelName} (with web search)`);
     console.log(`Latency: ${latencyMs}ms (${(latencyMs / 1000).toFixed(2)}s)`);
@@ -135,5 +143,7 @@ if (isProduction) {
 
 const PORT = process.env.PORT || (isProduction ? 5000 : 3001);
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT} (${isProduction ? "production" : "development"})`);
+  console.log(
+    `Server running on port ${PORT} (${isProduction ? "production" : "development"})`,
+  );
 });
