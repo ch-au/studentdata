@@ -10,6 +10,7 @@ type Props = {
   series: BumpSeries[]
   compact?: boolean
   hoveredUniversity?: string | null
+  hoveredBumpSeries?: BumpSeries | null
   fachbereich?: string
   highlightMaxRank?: number
   highlightMinRank?: number
@@ -27,14 +28,17 @@ type TooltipState =
       containerWidth: number
     }
 
-function BumpChartComponent({ title, years, series, compact = false, hoveredUniversity, fachbereich, highlightMaxRank, highlightMinRank, totalUniversities, displayMode = 'top' }: Props) {
+function BumpChartComponent({ title, years, series, compact = false, hoveredUniversity, hoveredBumpSeries, fachbereich, highlightMaxRank, highlightMinRank, totalUniversities, displayMode = 'top' }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState>(null)
   
-  // Find series that matches hovered university
-  const hoveredSeries = hoveredUniversity 
+  // Find series that matches hovered university in the visible series
+  const hoveredSeriesInView = hoveredUniversity 
     ? series.find(s => s.name === hoveredUniversity || (s.isHighlight && s.name.includes(hoveredUniversity.split(' ')[0])))
     : null
+  
+  // Use the separately computed hoveredBumpSeries if the hovered university isn't in view
+  const hoveredSeries = hoveredSeriesInView || hoveredBumpSeries
 
   // Match IndexLineChart dimensions exactly
   const dims = compact
@@ -280,6 +284,33 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                 ))
               })}
           </g>
+
+          {/* Separately computed hovered university line (when not in visible series) */}
+          {hoveredBumpSeries && !hoveredSeriesInView && (
+            <g>
+              <path
+                d={line(hoveredBumpSeries.points.map((p) => ({ year: p.year, rank: p.rank }))) ?? undefined}
+                fill="none"
+                stroke="#059669"
+                strokeWidth={compact ? 2.5 : 3.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeDasharray={compact ? "4 3" : "6 4"}
+                opacity={1}
+              />
+              {hoveredBumpSeries.points.map((p) => (
+                <circle
+                  key={`hovered-${p.year}`}
+                  cx={x(p.year)}
+                  cy={y(p.rank)}
+                  r={compact ? 4 : 5}
+                  fill="#059669"
+                  stroke="#fff"
+                  strokeWidth={compact ? 1 : 2}
+                />
+              ))}
+            </g>
+          )}
 
           {/* Highlight line (on top) */}
           <g>

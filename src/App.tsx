@@ -4,7 +4,7 @@ import type { Filters, LineKey } from './types'
 import { buildPanels, buildHoveredUniversitySeries, type ScaleMode } from './compute/aggregate'
 import { IndexLineChart } from './charts/IndexLineChart'
 import { UniversityYearTable } from './components/UniversityYearTable'
-import { buildBumpSeries } from './compute/bump'
+import { buildBumpSeries, buildHoveredUniversityBumpSeries } from './compute/bump'
 import { BumpChart } from './charts/BumpChart'
 import { useDashboardState } from './state/useDashboardState'
 import { KpiPanel } from './components/KpiPanel'
@@ -128,6 +128,11 @@ function App() {
     return buildHoveredUniversitySeries(rows, effectiveFilters, hoveredUniversity, scaleMode, tableDegree)
   }, [rows, effectiveFilters, hoveredUniversity, scaleMode, tableDegree])
 
+  const hoveredUniversityBumpSeries = useMemo(() => {
+    if (!effectiveFilters || !hoveredUniversity) return null
+    return buildHoveredUniversityBumpSeries(rows, effectiveFilters, hoveredUniversity, tableDegree)
+  }, [rows, effectiveFilters, hoveredUniversity, tableDegree])
+
   if (state.status === 'loading') {
     return (
       <div className="appShell">
@@ -241,6 +246,7 @@ function App() {
                   series={bump.series}
                   compact={true}
                   hoveredUniversity={hoveredUniversity}
+                  hoveredBumpSeries={hoveredUniversityBumpSeries}
                   fachbereich={effectiveFilters.fachbereich}
                   highlightMaxRank={bump.highlightMaxRank}
                   highlightMinRank={bump.highlightMinRank}

@@ -141,3 +141,55 @@ export function buildBumpSeries(rows: DataRow[], filters: Filters, opts: Opts): 
   return { years, series, highlightMaxRank, highlightMinRank, totalUniversities, displayMode }
 }
 
+export function buildHoveredUniversityBumpSeries(
+  rows: DataRow[], 
+  filters: Filters, 
+  hoveredUniversity: string | null,
+  degree: 'Alle' | 'Bachelor' | 'Master' = 'Alle',
+): BumpSeries | null {
+  if (!hoveredUniversity) return null
+
+  const scoped = rows.filter((r) => {
+    if (degree !== 'Alle' && r.abschluss !== degree) return false
+    if (r.fachbereich !== filters.fachbereich) return false
+    if (filters.studienfach !== 'ALL' && r.studienfach !== filters.studienfach) return false
+    if (r.jahr < filters.yearFrom || r.jahr > filters.yearTo) return false
+    if (r.traeger !== 'Public' && r.traeger !== 'Privat') return false
+    return true
+  })
+
+  const years = Array.from(new Set(scoped.map((r) => r.jahr))).sort((a, b) => a - b)
+
+  const byUniYear = new Map<string, Map<number, number>>()
+  for (const r of scoped) {
+    const m = byUniYear.get(r.hochschule) ?? new Map<number, number>()
+    m.set(r.jahr, (m.get(r.jahr) ?? 0) + r.insgesamt)
+    byUniYear.set(r.hochschule, m)
+  }
+
+  if (!byUniYear.has(hoveredUniversity)) return null
+  if (hoveredUniversity === filters.highlightUniversity) return null
+
+  const globalRanksByYear = new Map<number, Map<string, number>>()
+  for (const y of years) {
+    const values: Array<{ uni: string; value: number }> = []
+    for (const [uni, m] of byUniYear.entries()) {
+      const v = m.get(y) ?? 0
+      values.push({ uni, value: v })
+    }
+    values.sort((a, b) => b.value - a.value)
+    const ranks = new Map<string, number>()
+    values.forEach((v, idx) => ranks.set(v.uni, idx + 1))
+    globalRanksByYear.set(y, ranks)
+  }
+
+  const m = byUniYear.get(hoveredUniversity)!
+  const points: BumpPoint[] = years.map((y) => ({
+    year: y,
+    value: m.get(y) ?? 0,
+    rank: globalRanksByYear.get(y)?.get(hoveredUniversity) ?? 1,
+  }))
+
+  return { name: hoveredUniversity, points, isHighlight: false }
+}
+
