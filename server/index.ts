@@ -20,20 +20,25 @@ app.post('/api/university-info', async (req, res) => {
       return res.status(400).json({ error: 'University is required' });
     }
 
-    const systemPrompt = `Du bist ein hilfreicher Assistent, der Informationen über deutsche Hochschulen und Studiengänge zusammenfasst. Antworte immer auf Deutsch in einfacher, verständlicher Sprache. Strukturiere deine Antwort mit Stichpunkten (•).`;
+    const systemPrompt = `Du bist ein hilfreicher Assistent, der Informationen über deutsche Hochschulen und Studiengänge zusammenfasst. Antworte immer auf Deutsch in einfacher, verständlicher Sprache. Formatiere deine Antwort in Markdown mit Überschriften und Stichpunkten.`;
 
-    const userPrompt = `Was sind besondere Aspekte des ${studiengang || 'Studienangebots'} an der Hochschule ${university}?
+    const userPrompt = `Was ist die Value Proposition des ${studiengang || 'Studienangebots'} an der Hochschule ${university}?
 
-Bitte beschreibe in kurzen Stichpunkten:
+Bitte beschreibe hervorgehobene inhaltliche (Themen, Vertiefungen, Spezialisierung), methodische (Art der Vorlesungen, Praxisnähe) und strukturelle Elemente (Infrastruktur der HS, besonderer Mehrwert) in kurzen Bullets.
 
-INHALTLICH (Themen, Vertiefungen, Spezialisierung):
-• ...
+Formatiere die Antwort in Markdown:
 
-METHODISCH (Art der Vorlesungen, Praxisnähe):
-• ...
+## Inhaltlich
+- ...
 
-STRUKTURELL (Infrastruktur der HS, besonderer Mehrwert):
-• ...
+## Methodisch
+- ...
+
+## Strukturell
+- ...
+
+## Quelle
+Gib am Ende unbedingt die URL zur offiziellen Webseite des Studiengangs oder der Hochschule als Quelle an.
 
 Halte die Antworten kurz und prägnant. Verwende einfache Sprache.`;
 

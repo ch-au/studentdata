@@ -1,37 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
+import Markdown from 'react-markdown'
 
 type Props = {
   university: string
   studiengang: string | null
   onClose: () => void
-}
-
-function parseContent(text: string) {
-  const lines = text.split('\n').filter(line => line.trim())
-  const sections: { title: string; items: string[] }[] = []
-  let currentSection: { title: string; items: string[] } | null = null
-
-  for (const line of lines) {
-    const trimmed = line.trim()
-    
-    if (trimmed.match(/^(INHALTLICH|METHODISCH|STRUKTURELL|Inhaltlich|Methodisch|Strukturell)/i) || 
-        trimmed.endsWith(':') && !trimmed.startsWith('•') && !trimmed.startsWith('-')) {
-      if (currentSection) sections.push(currentSection)
-      currentSection = { title: trimmed.replace(/:$/, ''), items: [] }
-    } else if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*')) {
-      const item = trimmed.replace(/^[•\-*]\s*/, '')
-      if (currentSection) {
-        currentSection.items.push(item)
-      } else {
-        currentSection = { title: '', items: [item] }
-      }
-    } else if (trimmed && currentSection) {
-      currentSection.items.push(trimmed)
-    }
-  }
-  
-  if (currentSection) sections.push(currentSection)
-  return sections
 }
 
 export function InfoModal({ university, studiengang, onClose }: Props) {
@@ -67,8 +40,6 @@ export function InfoModal({ university, studiengang, onClose }: Props) {
     fetchInfo()
   }, [fetchInfo])
 
-  const sections = info ? parseContent(info) : []
-
   return (
     <div className="modalOverlay" onClick={onClose}>
       <div className="modalContent" onClick={(e) => e.stopPropagation()}>
@@ -102,24 +73,9 @@ export function InfoModal({ university, studiengang, onClose }: Props) {
             </div>
           )}
           
-          {!loading && !error && sections.length > 0 && (
-            <div className="modalInfo">
-              {sections.map((section, i) => (
-                <div key={i} className="infoSection">
-                  {section.title && <h4 className="infoSectionTitle">{section.title}</h4>}
-                  <ul className="infoBullets">
-                    {section.items.map((item, j) => (
-                      <li key={j}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {!loading && !error && sections.length === 0 && info && (
-            <div className="modalInfo">
-              <p>{info}</p>
+          {!loading && !error && info && (
+            <div className="modalInfo markdown-content">
+              <Markdown>{info}</Markdown>
             </div>
           )}
         </div>
