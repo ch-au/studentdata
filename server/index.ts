@@ -101,7 +101,7 @@ app.get("/api/health", (req, res) => {
 });
 
 if (isProduction) {
-  app.get("*", (req, res) => {
+  app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, "../dist/index.html"));
   });
 }
