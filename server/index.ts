@@ -65,7 +65,7 @@ Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Haupts
 
 WICHTIG: Stelle KEINE Rückfragen! Antworte direkt mit den Informationen, die du hast.`;
 
-    const modelName = "google/gemini-2.5-flash-preview";
+    const modelName = "gemini/gemini-3-flash-preview";
     const startTime = Date.now();
     
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
