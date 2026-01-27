@@ -251,7 +251,7 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
             <th className="sortable" style={{ minWidth: 110 }} onClick={() => clickHeader('total')}>
               Summe {sameKey(effectiveSort.key, 'total') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
             </th>
-            <th style={{ minWidth: 90 }}>Info</th>
+            <th style={{ minWidth: 90 }}>Details</th>
           </tr>
         </thead>
         <tbody>

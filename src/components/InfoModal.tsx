@@ -9,9 +9,9 @@ type Props = {
 }
 
 const loadingSteps = [
-  'Recherchiere Informationen im Netz...',
-  'Analysiere Informationen...',
-  'Fasse Informationen zusammen...'
+  '🔍 Recherchiere Informationen im Netz...',
+  '📊 Analysiere Informationen...',
+  '📝 Fasse Informationen zusammen...'
 ]
 
 export function InfoModal({ university, studiengang, niveau, onClose }: Props) {
