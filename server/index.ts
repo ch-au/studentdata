@@ -1,7 +1,7 @@
-import express from 'express';
-import cors from 'cors';
-import { createOpenAI } from '@ai-sdk/openai';
-import { generateText } from 'ai';
+import express from "express";
+import cors from "cors";
+import { createOpenAI } from "@ai-sdk/openai";
+import { generateText } from "ai";
 
 const app = express();
 app.use(cors());
@@ -12,16 +12,18 @@ const openai = createOpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
-app.post('/api/university-info', async (req, res) => {
+app.post("/api/university-info", async (req, res) => {
   try {
     const { university, studiengang, niveau } = req.body;
 
     if (!university) {
-      return res.status(400).json({ error: 'University is required' });
+      return res.status(400).json({ error: "University is required" });
     }
 
-    const niveauText = niveau && niveau !== 'Alle' ? ` (${niveau})` : '';
-    const studiengangText = studiengang ? `${studiengang}${niveauText}` : 'Studienangebots';
+    const niveauText = niveau && niveau !== "Alle" ? ` (${niveau})` : "";
+    const studiengangText = studiengang
+      ? `${studiengang}${niveauText}`
+      : "Studienangebots";
 
     const systemPrompt = `Du bist ein hilfreicher Assistent, der spezifische Informationen über deutsche Hochschulen und Studiengänge recherchiert. Antworte immer auf Deutsch in einfacher, verständlicher Sprache. Formatiere deine Antwort in Markdown. Sei konkret und spezifisch - keine generischen Aussagen. Stelle KEINE Rückfragen - antworte direkt mit den verfügbaren Informationen.`;
 
@@ -51,24 +53,24 @@ Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Haupts
 WICHTIG: Stelle KEINE Rückfragen! Antworte direkt mit den Informationen, die du hast.`;
 
     const { text } = await generateText({
-      model: openai('gpt-5-mini'),
+      model: openai("gpt-5-nano"),
       system: systemPrompt,
       prompt: userPrompt,
     });
 
-    res.json({ 
+    res.json({
       university,
       studiengang: studiengang || null,
-      info: text 
+      info: text,
     });
   } catch (error) {
-    console.error('Error fetching university info:', error);
-    res.status(500).json({ error: 'Fehler beim Abrufen der Informationen' });
+    console.error("Error fetching university info:", error);
+    res.status(500).json({ error: "Fehler beim Abrufen der Informationen" });
   }
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
 const PORT = process.env.PORT || 3001;
