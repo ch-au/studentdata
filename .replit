@@ -3,9 +3,9 @@ entrypoint = "src/App.tsx"
 modules = ["nodejs-20", "web", "nix"]
 
 [deployment]
-deploymentTarget = "static"
+deploymentTarget = "autoscale"
 publicDir = "dist"
-run = ["npx", "serve", "dist", "-p", "5000"]
+run = ["npx", "tsx", "server/index.ts"]
 build = ["npm", "run", "build"]
 
 [nix]

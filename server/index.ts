@@ -1,11 +1,21 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const isProduction = process.env.NODE_ENV === "production" || process.env.REPLIT_DEPLOYMENT === "1";
+if (isProduction) {
+  app.use(express.static(path.join(__dirname, "../dist")));
+}
 
 const openai = createOpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -90,7 +100,13 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+if (isProduction) {
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../dist/index.html"));
+  });
+}
+
+const PORT = process.env.PORT || (isProduction ? 5000 : 3001);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT} (${isProduction ? "production" : "development"})`);
 });
