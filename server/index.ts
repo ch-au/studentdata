@@ -23,7 +23,7 @@ app.post('/api/university-info', async (req, res) => {
     const niveauText = niveau && niveau !== 'Alle' ? ` (${niveau})` : '';
     const studiengangText = studiengang ? `${studiengang}${niveauText}` : 'Studienangebots';
 
-    const systemPrompt = `Du bist ein hilfreicher Assistent, der spezifische Informationen über deutsche Hochschulen und Studiengänge recherchiert. Antworte immer auf Deutsch in einfacher, verständlicher Sprache. Formatiere deine Antwort in Markdown. Sei konkret und spezifisch - keine generischen Aussagen.`;
+    const systemPrompt = `Du bist ein hilfreicher Assistent, der spezifische Informationen über deutsche Hochschulen und Studiengänge recherchiert. Antworte immer auf Deutsch in einfacher, verständlicher Sprache. Formatiere deine Antwort in Markdown. Sei konkret und spezifisch - keine generischen Aussagen. Stelle KEINE Rückfragen - antworte direkt mit den verfügbaren Informationen.`;
 
     const userPrompt = `Was ist die Value Proposition des ${studiengangText} an der Hochschule ${university}?
 
@@ -46,7 +46,9 @@ Formatiere die Antwort in Markdown:
 - ...
 
 ## Quelle
-Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Hauptseite der Hochschule, sondern die spezifische Seite des Studiengangs${niveauText}).`;
+Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Hauptseite der Hochschule, sondern die spezifische Seite des Studiengangs${niveauText}).
+
+WICHTIG: Stelle KEINE Rückfragen! Antworte direkt mit den Informationen, die du hast.`;
 
     const { text } = await generateText({
       model: openai('gpt-5-mini'),
