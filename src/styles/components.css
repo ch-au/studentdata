@@ -731,3 +731,9 @@
   color: white;
   border-color: var(--accent);
 }
+
+.infoButton:active {
+  background: var(--accent-hover);
+  color: white;
+  border-color: var(--accent-hover);
+}
