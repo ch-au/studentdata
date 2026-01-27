@@ -47,6 +47,7 @@ function App() {
     return {
       fachbereich: defaultFb,
       studienfach: 'ALL',
+      abschluss: 'Alle',
       baselineYear: defaultYearFrom,
       yearFrom: defaultYearFrom,
       yearTo: meta.yearMax,

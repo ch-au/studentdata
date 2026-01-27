@@ -36,6 +36,7 @@ export type DegreePanel = {
 export type Filters = {
   fachbereich: string
   studienfach: string | 'ALL'
+  abschluss: Abschluss | 'Alle'
   baselineYear: number
   yearFrom: number
   yearTo: number

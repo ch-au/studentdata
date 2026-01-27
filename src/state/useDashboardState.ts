@@ -23,6 +23,7 @@ function parseFiltersFromUrl(defaults: Filters): Filters {
   return {
     fachbereich: params.get('fb') ?? defaults.fachbereich,
     studienfach: (params.get('sf') as Filters['studienfach']) ?? defaults.studienfach,
+    abschluss: (params.get('ab') as Filters['abschluss']) ?? defaults.abschluss,
     baselineYear: Number(params.get('base') ?? defaults.baselineYear),
     yearFrom: Number(params.get('from') ?? defaults.yearFrom),
     yearTo: Number(params.get('to') ?? defaults.yearTo),
@@ -35,6 +36,7 @@ function writeFiltersToUrl(filters: Filters) {
   const params = new URLSearchParams()
   params.set('fb', filters.fachbereich)
   params.set('sf', filters.studienfach)
+  params.set('ab', filters.abschluss)
   params.set('base', String(filters.baselineYear))
   params.set('from', String(filters.yearFrom))
   params.set('to', String(filters.yearTo))
