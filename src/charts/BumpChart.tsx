@@ -157,9 +157,11 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
             </svg>
             Plätze {minRank}–{maxRank} von {totalUniversities} · HSMZ: #{highlightMinRank}{highlightMinRank !== highlightMaxRank ? `–${highlightMaxRank}` : ''}
           </div>
-        ) : !compact ? (
-          <div className="muted">Ranking nach absoluter Studierendenzahl</div>
-        ) : null}
+        ) : (
+          <div className="muted" style={{ fontSize: compact ? 11 : 13 }}>
+            Ranking nach Anzahl an Studienanfänger:innen in der Fächergruppe {fachbereich || 'BWL'}
+          </div>
+        )}
       </div>
 
       <svg 
@@ -362,6 +364,46 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                   />
                 )),
               )}
+          </g>
+
+          {/* Left-side start labels (only for highlight and hovered) */}
+          <g>
+            {series.filter(s => s.isHighlight).map((s) => {
+              const fp = s.points[0]
+              if (!fp) return null
+              return (
+                <text
+                  key={`start-label-${s.name}`}
+                  x={dims.margin.left - 8}
+                  y={y(fp.rank)}
+                  fontSize={compact ? 10 : 12}
+                  fontWeight={600}
+                  fill={highlightColor}
+                  textAnchor="end"
+                  dominantBaseline="middle"
+                >
+                  #{fp.rank}
+                </text>
+              )
+            })}
+            {/* Hovered university start label */}
+            {hoveredBumpSeries && !hoveredSeriesInView && (() => {
+              const fp = hoveredBumpSeries.points[0]
+              if (!fp) return null
+              return (
+                <text
+                  x={dims.margin.left - 8}
+                  y={y(fp.rank)}
+                  fontSize={compact ? 10 : 12}
+                  fontWeight={600}
+                  fill="#059669"
+                  textAnchor="end"
+                  dominantBaseline="middle"
+                >
+                  #{fp.rank}
+                </text>
+              )
+            })()}
           </g>
 
           {/* Right-side line labels */}

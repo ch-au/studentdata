@@ -370,6 +370,7 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
                   const shortLabel = s.key === 'HSMZ' ? 'HS Mainz' : s.label.length > 12 ? s.label.slice(0, 10) + '…' : s.label
                   const valueText = formatValue(lp.index)
                   const isHovered = hoveredLine === s.key
+                  const isClickable = s.key !== 'HSMZ' && !s.key.startsWith('compare_')
                   return (
                     <text
                       key={`label-${s.key}`}
@@ -380,7 +381,13 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
                       fill={s.color}
                       dominantBaseline="middle"
                       opacity={hoveredLine && !isHovered && s.key !== 'HSMZ' ? 0.4 : 1}
-                      style={{ transition: 'opacity 0.15s' }}
+                      style={{ 
+                        transition: 'opacity 0.15s',
+                        cursor: isClickable ? 'pointer' : 'default',
+                      }}
+                      onMouseEnter={() => isClickable && setHoveredLine(s.key)}
+                      onMouseLeave={() => setHoveredLine(null)}
+                      onClick={() => isClickable && handleLineClick(s.key)}
                     >
                       {shortLabel} {valueText}
                     </text>
