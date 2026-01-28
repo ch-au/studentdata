@@ -6,7 +6,7 @@ type Props = {
   rows: DataRow[]
   filters: Filters
   degree: 'Alle' | 'Bachelor' | 'Master'
-  focusYear: number | null
+  focusYear?: number | null
   institutionFilter?: null | { typ: 'HAW' | 'Uni'; traeger: 'Public' | 'Privat' }
   onHoverUniversity?: (university: string | null) => void
 }

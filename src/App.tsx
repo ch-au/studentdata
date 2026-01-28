@@ -60,8 +60,6 @@ function App() {
   const [view, setView] = useState<'detail' | 'overview'>('detail')
   const [scaleMode, setScaleMode] = useState<ScaleMode>('index')
   const [topN, setTopN] = useState<number>(10)
-  const [hoverYear, setHoverYear] = useState<number | null>(null)
-  const [pinnedYear, setPinnedYear] = useState<number | null>(null)
   const [tableDegree, setTableDegree] = useState<'Alle' | 'Bachelor' | 'Master'>('Alle')
   const [tableInstitutionFilter, setTableInstitutionFilter] = useState<InstitutionFilter>(null)
   const [infoModalUniversity, setInfoModalUniversity] = useState<string | null>(null)
@@ -70,7 +68,6 @@ function App() {
 
   const effectiveFilters = filters ?? defaultFilters
   const rows = state.status === 'ready' ? state.rows : []
-  const focusYear = pinnedYear ?? hoverYear
 
   const handleLineSelect = useCallback((key: LineKey) => {
     if (key === 'HAW_Public') setTableInstitutionFilter({ typ: 'HAW', traeger: 'Public' })
@@ -215,18 +212,6 @@ function App() {
                 highlightUniversity={effectiveFilters.highlightUniversity}
               />
               
-              {pinnedYear && (
-                <div className="pinnedYearBar">
-                  <span>Jahr fixiert: <strong>{pinnedYear}</strong></span>
-                  <button onClick={() => setPinnedYear(null)} className="pinnedYearClear">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                    Aufheben
-                  </button>
-                </div>
-              )}
               
               <div className="chartsGrid">
                 <IndexLineChart
@@ -235,8 +220,6 @@ function App() {
                   panels={panels}
                   scaleMode={scaleMode}
                   compact={true}
-                  onHoverYear={setHoverYear}
-                  onSelectYear={setPinnedYear}
                   onSelectLine={handleLineSelect}
                   hoveredUniversitySeries={hoveredUniversitySeries}
                 />
@@ -274,10 +257,9 @@ function App() {
                   rows={rows}
                   filters={effectiveFilters}
                   degree={tableDegree}
-                  focusYear={focusYear}
                   institutionFilter={tableInstitutionFilter}
                   onHoverUniversity={setHoveredUniversity}
-                                  />
+                />
               </div>
             </>
           ) : (

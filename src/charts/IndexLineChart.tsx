@@ -2,7 +2,6 @@ import { memo, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import type { DegreePanel, LineKey, Series } from '../types'
 import type { ScaleMode } from '../compute/aggregate'
-import { ChartTooltip, type TooltipRow } from '../components/ChartTooltip'
 
 type Props = {
   title: string
@@ -10,27 +9,16 @@ type Props = {
   panels: DegreePanel[]
   scaleMode?: ScaleMode
   compact?: boolean
-  onHoverYear?: (year: number | null) => void
-  onSelectYear?: (year: number) => void
   onSelectLine?: (key: LineKey) => void
   hoveredUniversitySeries?: Series | null
-}
-
-type TooltipState = null | {
-  x: number
-  y: number
-  year: number
-  rows: TooltipRow[]
-  containerWidth: number
 }
 
 function lastPoint(s: Series) {
   return s.points[s.points.length - 1]
 }
 
-function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index', compact = false, onHoverYear, onSelectYear, onSelectLine, hoveredUniversitySeries }: Props) {
+function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index', compact = false, onSelectLine, hoveredUniversitySeries }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [tooltip, setTooltip] = useState<TooltipState>(null)
   const [hoveredLine, setHoveredLine] = useState<LineKey | null>(null)
 
   const isAbsolute = scaleMode === 'absolute'
@@ -91,59 +79,9 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
     .curve(d3.curveMonotoneX)
     .defined((d) => Number.isFinite(d.index))
 
-  function handleMove(panelIdx: number, ev: React.MouseEvent<SVGElement>) {
-    const svg = ev.currentTarget.closest('svg') as SVGSVGElement
-    if (!svg) return
-    const rect = svg.getBoundingClientRect()
-    const containerRect = containerRef.current?.getBoundingClientRect()
-    const mx = ev.clientX - rect.left
-    const my = ev.clientY - rect.top
-    const yearFloat = x.invert(mx)
-    const nearestYear = d3.least(allYears, (yy) => Math.abs(yy - yearFloat))
-    if (nearestYear == null) return
-
-    const prevYear = nearestYear - 1
-    const panel = panels[panelIdx]
-    const rows: TooltipRow[] = panel.series
-      .map((s) => {
-        const pt = s.points.find((p) => p.year === nearestYear)
-        if (!pt) return null
-        const prevPt = s.points.find((p) => p.year === prevYear)
-        return { 
-          color: s.color, 
-          label: s.label, 
-          value: pt.index,
-          previousValue: prevPt?.index,
-          isHighlight: s.key === 'HSMZ',
-        } as TooltipRow
-      })
-      .filter((r): r is TooltipRow => r !== null)
-
-    setTooltip({ 
-      x: mx + 16, 
-      y: my + 16, 
-      year: nearestYear, 
-      rows,
-      containerWidth: containerRect?.width ?? rect.width
-    })
-    onHoverYear?.(nearestYear)
-  }
-
-  function handleLeave() {
-    setTooltip(null)
-    setHoveredLine(null)
-    onHoverYear?.(null)
-  }
-
   function handleLineClick(key: LineKey) {
     if (key !== 'HSMZ' && !key.startsWith('compare_')) {
       onSelectLine?.(key)
-    }
-  }
-
-  function handleYearClick() {
-    if (tooltip) {
-      onSelectYear?.(tooltip.year)
     }
   }
 
@@ -188,10 +126,7 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
               width="100%" 
               viewBox={`0 0 ${width} ${height}`} 
               role="img" 
-              style={{ overflow: 'visible', cursor: 'crosshair' }}
-              onMouseMove={(e) => handleMove(idx, e)}
-              onMouseLeave={handleLeave}
-              onClick={handleYearClick}
+              style={{ overflow: 'visible' }}
             >
               <defs>
                 <linearGradient id={`bg-grad-${idx}`} x1="0%" y1="0%" x2="0%" y2="100%">
@@ -417,22 +352,6 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
         ))}
       </div>
 
-      {tooltip && (
-        <ChartTooltip
-          year={tooltip.year}
-          rows={tooltip.rows}
-          formatValue={formatValue}
-          showDelta={true}
-          style={{ 
-            // Position tooltip on left side if near right edge
-            ...(tooltip.x > tooltip.containerWidth * 0.65 
-              ? { right: tooltip.containerWidth - tooltip.x + 16, left: 'auto' }
-              : { left: tooltip.x + 16 }
-            ),
-            top: tooltip.y 
-          }}
-        />
-      )}
     </div>
   )
 }
