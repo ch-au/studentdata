@@ -29,7 +29,7 @@ type Row = {
   votes?: number
 }
 
-type SortKey = 'hochschule' | 'typ' | 'traeger' | 'total' | 'trend' | 'change' | { year: number }
+type SortKey = 'hochschule' | 'typ' | 'traeger' | 'total' | 'trend' | 'change' | 'rating' | 'votes' | { year: number }
 type SortDir = 'asc' | 'desc'
 type SortMode = 'auto' | 'manual'
 
@@ -301,6 +301,8 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
       if (key === 'total') return dirMul * (a.total - b.total)
       if (key === 'trend') return dirMul * (a.trend - b.trend)
       if (key === 'change') return dirMul * (a.change - b.change)
+      if (key === 'rating') return dirMul * ((a.rating ?? 0) - (b.rating ?? 0))
+      if (key === 'votes') return dirMul * ((a.votes ?? 0) - (b.votes ?? 0))
       if (isYearKey(key)) return dirMul * ((a.byYear[key.year] ?? 0) - (b.byYear[key.year] ?? 0))
       return 0
     })
@@ -345,11 +347,11 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
             <th className="sortable stickyCol" style={{ maxWidth: 260 }} onClick={() => clickHeader('hochschule')}>
               Hochschule {sameKey(effectiveSort.key, 'hochschule') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
             </th>
-            <th style={{ width: 100 }}>
-              Bewertung
+            <th className="sortable" style={{ width: 120 }} onClick={() => clickHeader('rating')}>
+              Studycheck {sameKey(effectiveSort.key, 'rating') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
             </th>
-            <th style={{ width: 60 }}>
-              Stimmen
+            <th className="sortable" style={{ width: 70 }} onClick={() => clickHeader('votes')}>
+              Stimmen {sameKey(effectiveSort.key, 'votes') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
             </th>
             <th className="sortable" style={{ width: 56 }} onClick={() => clickHeader('typ')}>
               Typ {sameKey(effectiveSort.key, 'typ') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
