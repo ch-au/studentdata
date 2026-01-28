@@ -12,10 +12,6 @@ type Props = {
   hoveredUniversity?: string | null
   hoveredBumpSeries?: BumpSeries | null
   fachbereich?: string
-  highlightMaxRank?: number
-  highlightMinRank?: number
-  totalUniversities?: number
-  displayMode?: 'top' | 'context'
 }
 
 type TooltipState =
@@ -28,7 +24,7 @@ type TooltipState =
       containerWidth: number
     }
 
-function BumpChartComponent({ title, years, series, compact = false, hoveredUniversity, hoveredBumpSeries, fachbereich, highlightMaxRank, highlightMinRank, totalUniversities, displayMode = 'top' }: Props) {
+function BumpChartComponent({ title, years, series, compact = false, hoveredUniversity, hoveredBumpSeries, fachbereich }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState>(null)
   
@@ -143,32 +139,16 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
     <div className="panel" ref={containerRef} style={{ position: 'relative', padding: compact ? 12 : 24 }}>
       <div style={{ marginBottom: compact ? 8 : 16 }}>
         <h3 style={{ fontSize: compact ? 14 : 18, fontWeight: 600, marginBottom: 2 }}>{title}</h3>
-        {displayMode === 'context' && highlightMinRank && highlightMaxRank && totalUniversities ? (
-          <div style={{ 
-            fontSize: 11, 
-            color: highlightColor, 
-            marginTop: 2,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-            Plätze {minRank}–{maxRank} von {totalUniversities} · HSMZ: #{highlightMinRank}{highlightMinRank !== highlightMaxRank ? `–${highlightMaxRank}` : ''}
-          </div>
-        ) : (
-          <div className="muted" style={{ fontSize: compact ? 11 : 13 }}>
-            Ranking nach Anzahl an Studienanfänger:innen in der Fächergruppe {fachbereich || 'BWL'}
-          </div>
-        )}
+        <div className="muted" style={{ fontSize: compact ? 11 : 13 }}>
+          Ranking nach Anzahl an Studienanfänger:innen in der Fächergruppe {fachbereich || 'BWL'}
+        </div>
       </div>
 
       <svg 
         width="100%" 
         viewBox={`0 0 ${width} ${height}`} 
         role="img" 
-        style={{ overflow: 'hidden', cursor: 'crosshair' }}
+        style={{ overflow: 'visible', cursor: 'crosshair' }}
         onMouseMove={handleMove}
         onMouseLeave={handleLeave}
       >

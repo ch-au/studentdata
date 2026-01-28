@@ -231,10 +231,6 @@ function App() {
                   hoveredUniversity={hoveredUniversity}
                   hoveredBumpSeries={hoveredUniversityBumpSeries}
                   fachbereich={effectiveFilters.fachbereich}
-                  highlightMaxRank={bump.highlightMaxRank}
-                  highlightMinRank={bump.highlightMinRank}
-                  totalUniversities={bump.totalUniversities}
-                  displayMode={bump.displayMode}
                 />
               </div>
               
