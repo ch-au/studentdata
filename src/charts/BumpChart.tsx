@@ -136,7 +136,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
   }
 
   return (
-    <div className="panel" ref={containerRef} style={{ position: 'relative', padding: compact ? 12 : 24 }}>
+    <div className="panel" ref={containerRef} style={{ position: 'relative', padding: compact ? 12 : 24, paddingRight: compact ? 100 : 140, overflow: 'visible' }}>
       <div style={{ marginBottom: compact ? 8 : 16 }}>
         <h3 style={{ fontSize: compact ? 14 : 18, fontWeight: 600, marginBottom: 2 }}>{title}</h3>
         <div className="muted" style={{ fontSize: compact ? 11 : 13 }}>
@@ -346,89 +346,87 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
               )}
           </g>
 
-          {/* Left-side start labels (only for highlight and hovered) */}
-          <g>
-            {series.filter(s => s.isHighlight).map((s) => {
-              const fp = s.points[0]
-              if (!fp) return null
-              return (
-                <text
-                  key={`start-label-${s.name}`}
-                  x={dims.margin.left - 8}
-                  y={y(fp.rank)}
-                  fontSize={compact ? 10 : 12}
-                  fontWeight={600}
-                  fill={highlightColor}
-                  textAnchor="end"
-                  dominantBaseline="middle"
-                >
-                  #{fp.rank}
-                </text>
-              )
-            })}
-            {/* Hovered university start label */}
-            {hoveredBumpSeries && !hoveredSeriesInView && (() => {
-              const fp = hoveredBumpSeries.points[0]
-              if (!fp) return null
-              return (
-                <text
-                  x={dims.margin.left - 8}
-                  y={y(fp.rank)}
-                  fontSize={compact ? 10 : 12}
-                  fontWeight={600}
-                  fill="#059669"
-                  textAnchor="end"
-                  dominantBaseline="middle"
-                >
-                  #{fp.rank}
-                </text>
-              )
-            })()}
-          </g>
-
-          {/* Right-side line labels */}
-          <g>
-            {series.map((s) => {
-              const lp = s.points[s.points.length - 1]
-              if (!lp) return null
-              const isHovered = hoveredSeries?.name === s.name
-              const shortLabel = s.isHighlight ? 'HS Mainz' : (s.name.length > 12 ? s.name.slice(0, 10) + '…' : s.name)
-              return (
-                <text
-                  key={`label-${s.name}`}
-                  x={width - dims.margin.right + 8}
-                  y={y(lp.rank)}
-                  fontSize={compact ? 11 : 13}
-                  fontWeight={s.isHighlight ? 600 : isHovered ? 600 : 500}
-                  fill={s.isHighlight ? highlightColor : isHovered ? '#059669' : '#64748b'}
-                  dominantBaseline="middle"
-                  opacity={hoveredSeries && !isHovered && !s.isHighlight ? 0.4 : 1}
-                  style={{ transition: 'opacity 0.15s' }}
-                >
-                  {shortLabel} #{lp.rank}
-                </text>
-              )
-            })}
-            {/* Hovered university label (when not in visible series) */}
-            {hoveredBumpSeries && !hoveredSeriesInView && (() => {
-              const lp = hoveredBumpSeries.points[hoveredBumpSeries.points.length - 1]
-              if (!lp) return null
-              const shortLabel = hoveredBumpSeries.name.length > 12 ? hoveredBumpSeries.name.slice(0, 10) + '…' : hoveredBumpSeries.name
-              return (
-                <text
-                  x={width - dims.margin.right + 8}
-                  y={y(lp.rank)}
-                  fontSize={compact ? 11 : 13}
-                  fontWeight={600}
-                  fill="#059669"
-                  dominantBaseline="middle"
-                >
-                  {shortLabel} #{lp.rank}
-                </text>
-              )
-            })()}
-          </g>
         </g>
+
+        {/* Left-side start labels - OUTSIDE clipPath so they're visible */}
+        <g>
+          {series.filter(s => s.isHighlight).map((s) => {
+            const fp = s.points[0]
+            if (!fp) return null
+            return (
+              <text
+                key={`start-label-${s.name}`}
+                x={dims.margin.left - 8}
+                y={y(fp.rank)}
+                fontSize={compact ? 10 : 12}
+                fontWeight={600}
+                fill={highlightColor}
+                textAnchor="end"
+                dominantBaseline="middle"
+              >
+                #{fp.rank}
+              </text>
+            )
+          })}
+          {/* Hovered university start label */}
+          {hoveredBumpSeries && !hoveredSeriesInView && (() => {
+            const fp = hoveredBumpSeries.points[0]
+            if (!fp) return null
+            return (
+              <text
+                x={dims.margin.left - 8}
+                y={y(fp.rank)}
+                fontSize={compact ? 10 : 12}
+                fontWeight={600}
+                fill="#059669"
+                textAnchor="end"
+                dominantBaseline="middle"
+              >
+                #{fp.rank}
+              </text>
+            )
+          })()}
+        </g>
+
+        {/* Right-side line labels - OUTSIDE clipPath so they're visible in the margin */}
+        <g>
+          {series.filter(s => s.isHighlight).map((s) => {
+            const lp = s.points[s.points.length - 1]
+            if (!lp) return null
+            return (
+              <text
+                key={`label-${s.name}`}
+                x={width - dims.margin.right + 8}
+                y={y(lp.rank)}
+                fontSize={compact ? 11 : 13}
+                fontWeight={600}
+                fill={highlightColor}
+                dominantBaseline="middle"
+              >
+                HS Mainz #{lp.rank}
+              </text>
+            )
+          })}
+          {/* Hovered university label (when not in visible series) */}
+          {hoveredBumpSeries && !hoveredSeriesInView && (() => {
+            const lp = hoveredBumpSeries.points[hoveredBumpSeries.points.length - 1]
+            if (!lp) return null
+            const shortLabel = hoveredBumpSeries.name.length > 12 ? hoveredBumpSeries.name.slice(0, 10) + '…' : hoveredBumpSeries.name
+            return (
+              <text
+                x={width - dims.margin.right + 8}
+                y={y(lp.rank)}
+                fontSize={compact ? 11 : 13}
+                fontWeight={600}
+                fill="#059669"
+                dominantBaseline="middle"
+              >
+                {shortLabel} #{lp.rank}
+              </text>
+            )
+          })()}
+        </g>
+        
       </svg>
 
       {tooltip && (
