@@ -49,8 +49,8 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
   }, [panels])
 
   const dims = compact 
-    ? { width: 560, heightPerPanel: 220, margin: { top: 16, right: 24, bottom: 28, left: isAbsolute ? 56 : 44 } }
-    : { width: 1000, heightPerPanel: 280, margin: { top: 20, right: 40, bottom: 32, left: isAbsolute ? 72 : isShare ? 52 : 56 } }
+    ? { width: 560, heightPerPanel: 220, margin: { top: 16, right: 120, bottom: 28, left: isAbsolute ? 56 : 44 } }
+    : { width: 1000, heightPerPanel: 280, margin: { top: 20, right: 160, bottom: 32, left: isAbsolute ? 72 : isShare ? 52 : 56 } }
   const width = dims.width
   const height = dims.heightPerPanel
 
@@ -360,6 +360,48 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
                     }}
                   />
                 ))}
+              </g>
+
+              {/* Right-side line labels */}
+              <g>
+                {panel.series.map((s) => {
+                  const lp = lastPoint(s)
+                  if (!lp) return null
+                  const labelText = s.key === 'HSMZ' ? 'HS Mainz' : s.label.length > 18 ? s.label.slice(0, 16) + '…' : s.label
+                  const isHovered = hoveredLine === s.key
+                  return (
+                    <text
+                      key={`label-${s.key}`}
+                      x={width - dims.margin.right + 8}
+                      y={y(lp.index)}
+                      fontSize={compact ? 9 : 11}
+                      fontWeight={s.key === 'HSMZ' ? 600 : isHovered ? 600 : 500}
+                      fill={s.color}
+                      dominantBaseline="middle"
+                      opacity={hoveredLine && !isHovered && s.key !== 'HSMZ' ? 0.4 : 1}
+                      style={{ transition: 'opacity 0.15s' }}
+                    >
+                      {labelText}
+                    </text>
+                  )
+                })}
+                {/* Hovered university label */}
+                {hoveredUniversitySeries && hoveredUniversitySeries.points.length > 0 && (() => {
+                  const lp = hoveredUniversitySeries.points[hoveredUniversitySeries.points.length - 1]
+                  const labelText = hoveredUniversitySeries.label.length > 18 ? hoveredUniversitySeries.label.slice(0, 16) + '…' : hoveredUniversitySeries.label
+                  return (
+                    <text
+                      x={width - dims.margin.right + 8}
+                      y={y(lp.index)}
+                      fontSize={compact ? 9 : 11}
+                      fontWeight={600}
+                      fill={hoveredUniversitySeries.color}
+                      dominantBaseline="middle"
+                    >
+                      {labelText}
+                    </text>
+                  )
+                })()}
               </g>
             </svg>
             {/* Legend below chart */}

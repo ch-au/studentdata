@@ -42,8 +42,8 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
 
   // Match IndexLineChart dimensions exactly
   const dims = compact
-    ? { width: 560, height: 220, margin: { top: 16, right: 24, bottom: 28, left: 36 } }
-    : { width: 1000, height: 280, margin: { top: 20, right: 40, bottom: 32, left: 56 } }
+    ? { width: 560, height: 220, margin: { top: 16, right: 120, bottom: 28, left: 36 } }
+    : { width: 1000, height: 280, margin: { top: 20, right: 160, bottom: 32, left: 56 } }
   const width = dims.width
   const height = dims.height
 
@@ -350,6 +350,49 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                   />
                 )),
               )}
+          </g>
+
+          {/* Right-side line labels */}
+          <g>
+            {series.map((s) => {
+              const lp = s.points[s.points.length - 1]
+              if (!lp) return null
+              const isHovered = hoveredSeries?.name === s.name
+              const labelText = s.name.length > 18 ? s.name.slice(0, 16) + '…' : s.name
+              return (
+                <text
+                  key={`label-${s.name}`}
+                  x={width - dims.margin.right + 8}
+                  y={y(lp.rank)}
+                  fontSize={compact ? 9 : 11}
+                  fontWeight={s.isHighlight ? 600 : isHovered ? 600 : 500}
+                  fill={s.isHighlight ? highlightColor : isHovered ? '#059669' : '#64748b'}
+                  dominantBaseline="middle"
+                  opacity={hoveredSeries && !isHovered && !s.isHighlight ? 0.4 : 1}
+                  style={{ transition: 'opacity 0.15s' }}
+                >
+                  {labelText}
+                </text>
+              )
+            })}
+            {/* Hovered university label (when not in visible series) */}
+            {hoveredBumpSeries && !hoveredSeriesInView && (() => {
+              const lp = hoveredBumpSeries.points[hoveredBumpSeries.points.length - 1]
+              if (!lp) return null
+              const labelText = hoveredBumpSeries.name.length > 18 ? hoveredBumpSeries.name.slice(0, 16) + '…' : hoveredBumpSeries.name
+              return (
+                <text
+                  x={width - dims.margin.right + 8}
+                  y={y(lp.rank)}
+                  fontSize={compact ? 9 : 11}
+                  fontWeight={600}
+                  fill="#059669"
+                  dominantBaseline="middle"
+                >
+                  {labelText}
+                </text>
+              )
+            })()}
           </g>
         </g>
       </svg>
