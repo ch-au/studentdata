@@ -56,14 +56,26 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
   }, [series])
 
   // Y-axis range is based on HSMZ's rank range with padding
-  // This clips other universities' lines to keep focus on HSMZ
+  // When a university is hovered, expand to include their rank range too
   const { minRank, maxRank } = useMemo(() => {
     const padding = 3
-    return { 
-      minRank: Math.max(1, highlightRange.min - padding), 
-      maxRank: highlightRange.max + padding
+    let min = highlightRange.min
+    let max = highlightRange.max
+    
+    // If there's a hovered series not in view, expand axis to include it
+    if (hoveredBumpSeries && !hoveredSeriesInView) {
+      const hoveredRanks = hoveredBumpSeries.points.map(p => p.rank)
+      const hoveredMin = d3.min(hoveredRanks) ?? min
+      const hoveredMax = d3.max(hoveredRanks) ?? max
+      min = Math.min(min, hoveredMin)
+      max = Math.max(max, hoveredMax)
     }
-  }, [highlightRange])
+    
+    return { 
+      minRank: Math.max(1, min - padding), 
+      maxRank: max + padding
+    }
+  }, [highlightRange, hoveredBumpSeries, hoveredSeriesInView])
 
   const x = d3
     .scaleLinear()
@@ -358,7 +370,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
               const lp = s.points[s.points.length - 1]
               if (!lp) return null
               const isHovered = hoveredSeries?.name === s.name
-              const shortLabel = s.name.length > 12 ? s.name.slice(0, 10) + '…' : s.name
+              const shortLabel = s.isHighlight ? 'HS Mainz' : (s.name.length > 12 ? s.name.slice(0, 10) + '…' : s.name)
               return (
                 <text
                   key={`label-${s.name}`}
