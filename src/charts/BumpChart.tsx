@@ -136,7 +136,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
   }
 
   return (
-    <div className="panel" ref={containerRef} style={{ position: 'relative', padding: compact ? 12 : 24, paddingRight: compact ? 100 : 140, overflow: 'visible' }}>
+    <div className="panel" ref={containerRef} style={{ position: 'relative', padding: compact ? 12 : 24, overflow: 'visible' }}>
       <div style={{ marginBottom: compact ? 8 : 16 }}>
         <h3 style={{ fontSize: compact ? 14 : 18, fontWeight: 600, marginBottom: 2 }}>{title}</h3>
         <div className="muted" style={{ fontSize: compact ? 11 : 13 }}>
