@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import type { DataRow, Filters } from '../types'
 import { getTraegerBadge, getTypeBadge } from '../style/seriesStyle'
 
@@ -9,6 +9,12 @@ type Props = {
   focusYear?: number | null
   institutionFilter?: null | { typ: 'HAW' | 'Uni'; traeger: 'Public' | 'Privat' }
   onHoverUniversity?: (university: string | null) => void
+  onShowInfo?: (university: string) => void
+}
+
+type UniversityMetadata = {
+  rating: number
+  votes: number
 }
 
 type Row = {
@@ -19,6 +25,8 @@ type Row = {
   total: number
   trend: number
   change: number
+  rating?: number
+  votes?: number
 }
 
 type SortKey = 'hochschule' | 'typ' | 'traeger' | 'total' | 'trend' | 'change' | { year: number }
@@ -173,13 +181,47 @@ function DeltaBadge({ change }: { change: number }) {
   )
 }
 
-export function UniversityYearTable({ rows, filters, degree, focusYear, institutionFilter, onHoverUniversity }: Props) {
+function StarRating({ rating }: { rating: number }) {
+  const fullStars = Math.floor(rating)
+  const hasHalf = rating - fullStars >= 0.3 && rating - fullStars < 0.8
+  const emptyStars = 5 - fullStars - (hasHalf ? 1 : 0)
+  
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      {[...Array(fullStars)].map((_, i) => (
+        <span key={`full-${i}`} style={{ color: '#f59e0b', fontSize: 12 }}>★</span>
+      ))}
+      {hasHalf && <span style={{ color: '#f59e0b', fontSize: 12, opacity: 0.6 }}>★</span>}
+      {[...Array(emptyStars)].map((_, i) => (
+        <span key={`empty-${i}`} style={{ color: '#d1d5db', fontSize: 12 }}>★</span>
+      ))}
+      <span style={{ marginLeft: 4, fontSize: 11, color: 'var(--muted)', fontWeight: 500 }}>
+        {rating.toFixed(1)}
+      </span>
+    </div>
+  )
+}
+
+export function UniversityYearTable({ rows, filters, degree, focusYear, institutionFilter, onHoverUniversity, onShowInfo }: Props) {
   const [, setHoveredRow] = useState<string | null>(null)
-  const years = useMemo(() => {
+  const [metadata, setMetadata] = useState<Record<string, UniversityMetadata>>({})
+  
+  useEffect(() => {
+    fetch('/data/university-metadata.json')
+      .then(res => res.json())
+      .then(data => setMetadata(data))
+      .catch(() => {})
+  }, [])
+  
+  const allYears = useMemo(() => {
     const ys: number[] = []
     for (let y = filters.yearFrom; y <= filters.yearTo; y++) ys.push(y)
     return ys
   }, [filters.yearFrom, filters.yearTo])
+  
+  const years = useMemo(() => {
+    return allYears.slice(-3)
+  }, [allYears])
 
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir; mode: SortMode }>({
     key: 'total',
@@ -225,14 +267,20 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
 
     const list = [...map.values()]
     
-    // Calculate trend (slope) and change for each row
+    // Calculate trend (slope) and change for each row using ALL years
     for (const row of list) {
-      const values = years.map((y) => row.byYear[y] ?? 0)
+      const values = allYears.map((y) => row.byYear[y] ?? 0)
       const { slope } = computeSlope(values)
       row.trend = slope
-      const firstYear = years[0]
-      const lastYear = years[years.length - 1]
+      const firstYear = allYears[0]
+      const lastYear = allYears[allYears.length - 1]
       row.change = (row.byYear[lastYear] ?? 0) - (row.byYear[firstYear] ?? 0)
+      // Add metadata
+      const meta = metadata[row.hochschule]
+      if (meta) {
+        row.rating = meta.rating
+        row.votes = meta.votes
+      }
     }
     
     // Compute max values for bar scaling
@@ -269,6 +317,8 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
     effectiveSort.key,
     effectiveSort.dir,
     years,
+    allYears,
+    metadata,
   ])
 
   function clickHeader(nextKey: SortKey) {
@@ -292,8 +342,14 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
             <th className="sortable" style={{ width: 80 }} onClick={() => clickHeader('trend')}>
               Trend {sameKey(effectiveSort.key, 'trend') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
             </th>
-            <th className="sortable stickyCol" style={{ maxWidth: 220 }} onClick={() => clickHeader('hochschule')}>
+            <th className="sortable stickyCol" style={{ maxWidth: 260 }} onClick={() => clickHeader('hochschule')}>
               Hochschule {sameKey(effectiveSort.key, 'hochschule') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
+            </th>
+            <th style={{ width: 100 }}>
+              Bewertung
+            </th>
+            <th style={{ width: 60 }}>
+              Stimmen
             </th>
             <th className="sortable" style={{ width: 56 }} onClick={() => clickHeader('typ')}>
               Typ {sameKey(effectiveSort.key, 'typ') ? (effectiveSort.dir === 'asc' ? '▲' : '▼') : ''}
@@ -350,33 +406,71 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
                   {idx + 1}
                 </td>
                 <td>
-                  <Sparkline values={years.map((y) => r.byYear[y] ?? 0)} />
+                  <Sparkline values={allYears.map((y) => r.byYear[y] ?? 0)} />
                 </td>
                 <td 
                   className="stickyCol" 
                   style={{ 
                     fontWeight: isHighlight ? 700 : 500,
                     color: isHighlight ? 'var(--accent)' : 'var(--text)',
-                    maxWidth: 240,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    maxWidth: 260,
                     textAlign: 'left',
                   }}
                   title={r.hochschule}
                 >
-                  {isHighlight && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {isHighlight && (
+                      <span style={{ 
+                        display: 'inline-block',
+                        width: 4,
+                        height: 4,
+                        borderRadius: '50%',
+                        background: 'var(--accent)',
+                        flexShrink: 0,
+                      }} />
+                    )}
                     <span style={{ 
-                      display: 'inline-block',
-                      width: 4,
-                      height: 4,
-                      borderRadius: '50%',
-                      background: 'var(--accent)',
-                      marginRight: 6,
-                      verticalAlign: 'middle',
-                    }} />
-                  )}
-                  {r.hochschule.length > 32 ? r.hochschule.slice(0, 29) + '...' : r.hochschule}
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis', 
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                    }}>
+                      {r.hochschule.length > 28 ? r.hochschule.slice(0, 25) + '...' : r.hochschule}
+                    </span>
+                    {onShowInfo && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onShowInfo(r.hochschule)
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 3,
+                          padding: '3px 6px',
+                          fontSize: 10,
+                          fontWeight: 600,
+                          background: 'var(--accent-light)',
+                          color: 'var(--accent)',
+                          border: 'none',
+                          borderRadius: 4,
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                        }}
+                        title="Mehr über diese Hochschule erfahren"
+                      >
+                        <span style={{ fontSize: 11 }}>🤖</span>
+                        Info
+                      </button>
+                    )}
+                  </div>
+                </td>
+                <td>
+                  {r.rating ? <StarRating rating={r.rating} /> : <span style={{ color: 'var(--muted)' }}>—</span>}
+                </td>
+                <td style={{ textAlign: 'right', fontSize: 12, color: 'var(--muted)' }}>
+                  {r.votes ? r.votes.toLocaleString('de-DE') : '—'}
                 </td>
                 <td>
                   {(() => {
@@ -420,7 +514,7 @@ export function UniversityYearTable({ rows, filters, degree, focusYear, institut
           })}
           {table.list.length === 0 && (
             <tr>
-              <td colSpan={7 + years.length} style={{ textAlign: 'center', padding: 32, color: 'var(--muted)' }}>
+              <td colSpan={9 + years.length} style={{ textAlign: 'center', padding: 32, color: 'var(--muted)' }}>
                 Keine Daten für diese Filter gefunden.
               </td>
             </tr>

@@ -255,6 +255,7 @@ function App() {
                   degree={tableDegree}
                   institutionFilter={tableInstitutionFilter}
                   onHoverUniversity={setHoveredUniversity}
+                  onShowInfo={setInfoModalUniversity}
                 />
               </div>
             </>
