@@ -36,10 +36,10 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
   // Use the separately computed hoveredBumpSeries if the hovered university isn't in view
   const hoveredSeries = hoveredSeriesInView || hoveredBumpSeries
 
-  // Match IndexLineChart dimensions exactly
+  // Match IndexLineChart dimensions - use full width with adequate label space
   const dims = compact
-    ? { width: 560, height: 220, margin: { top: 16, right: 120, bottom: 28, left: 36 } }
-    : { width: 1000, height: 280, margin: { top: 20, right: 160, bottom: 32, left: 56 } }
+    ? { width: 560, height: 220, margin: { top: 16, right: 100, bottom: 28, left: 40 } }
+    : { width: 1000, height: 280, margin: { top: 20, right: 140, bottom: 32, left: 56 } }
   const width = dims.width
   const height = dims.height
 
@@ -358,7 +358,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                 key={`start-label-${s.name}`}
                 x={dims.margin.left - 8}
                 y={y(fp.rank)}
-                fontSize={compact ? 10 : 12}
+                fontSize={compact ? 11 : 13}
                 fontWeight={600}
                 fill={highlightColor}
                 textAnchor="end"
@@ -376,7 +376,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
               <text
                 x={dims.margin.left - 8}
                 y={y(fp.rank)}
-                fontSize={compact ? 10 : 12}
+                fontSize={compact ? 11 : 13}
                 fontWeight={600}
                 fill="#059669"
                 textAnchor="end"
