@@ -358,20 +358,20 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
               const lp = s.points[s.points.length - 1]
               if (!lp) return null
               const isHovered = hoveredSeries?.name === s.name
-              const labelText = s.name.length > 18 ? s.name.slice(0, 16) + '…' : s.name
+              const shortLabel = s.name.length > 12 ? s.name.slice(0, 10) + '…' : s.name
               return (
                 <text
                   key={`label-${s.name}`}
                   x={width - dims.margin.right + 8}
                   y={y(lp.rank)}
-                  fontSize={compact ? 9 : 11}
+                  fontSize={compact ? 11 : 13}
                   fontWeight={s.isHighlight ? 600 : isHovered ? 600 : 500}
                   fill={s.isHighlight ? highlightColor : isHovered ? '#059669' : '#64748b'}
                   dominantBaseline="middle"
                   opacity={hoveredSeries && !isHovered && !s.isHighlight ? 0.4 : 1}
                   style={{ transition: 'opacity 0.15s' }}
                 >
-                  {labelText}
+                  {shortLabel} #{lp.rank}
                 </text>
               )
             })}
@@ -379,87 +379,23 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
             {hoveredBumpSeries && !hoveredSeriesInView && (() => {
               const lp = hoveredBumpSeries.points[hoveredBumpSeries.points.length - 1]
               if (!lp) return null
-              const labelText = hoveredBumpSeries.name.length > 18 ? hoveredBumpSeries.name.slice(0, 16) + '…' : hoveredBumpSeries.name
+              const shortLabel = hoveredBumpSeries.name.length > 12 ? hoveredBumpSeries.name.slice(0, 10) + '…' : hoveredBumpSeries.name
               return (
                 <text
                   x={width - dims.margin.right + 8}
                   y={y(lp.rank)}
-                  fontSize={compact ? 9 : 11}
+                  fontSize={compact ? 11 : 13}
                   fontWeight={600}
                   fill="#059669"
                   dominantBaseline="middle"
                 >
-                  {labelText}
+                  {shortLabel} #{lp.rank}
                 </text>
               )
             })()}
           </g>
         </g>
       </svg>
-
-      {/* Legend below chart - matches IndexLineChart style */}
-      <div style={{ 
-        display: 'flex', 
-        flexWrap: 'wrap', 
-        gap: compact ? '4px 6px' : '8px 12px', 
-        marginTop: compact ? 6 : 10,
-        paddingTop: compact ? 6 : 10,
-        borderTop: '1px solid var(--border-light)'
-      }}>
-        {series
-          .filter((s) => {
-            const last = s.points[s.points.length - 1]
-            return s.isHighlight || (last && last.rank <= (compact ? 5 : 10))
-          })
-          .sort((a, b) => {
-            const aLast = a.points[a.points.length - 1]
-            const bLast = b.points[b.points.length - 1]
-            return (aLast?.rank ?? 999) - (bLast?.rank ?? 999)
-          })
-          .map((s) => {
-            const last = s.points[s.points.length - 1]
-            return (
-              <div 
-                key={s.name}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: compact ? 4 : 6,
-                  padding: compact ? '2px 6px' : '4px 8px',
-                  borderRadius: 4,
-                  background: s.isHighlight ? 'var(--accent-light)' : 'transparent',
-                  fontSize: compact ? 10 : 12,
-                }}
-              >
-                <span 
-                  style={{ 
-                    width: compact ? 8 : 10, 
-                    height: compact ? 8 : 10, 
-                    borderRadius: '50%', 
-                    background: s.isHighlight ? highlightColor : '#cbd5e1',
-                    flexShrink: 0,
-                  }} 
-                />
-                <span style={{ 
-                  fontWeight: 600,
-                  color: s.isHighlight ? highlightColor : labelColor,
-                }}>
-                  #{last?.rank}
-                </span>
-                <span style={{ 
-                  fontWeight: s.isHighlight ? 600 : 500,
-                  color: 'var(--text-secondary)',
-                  maxWidth: compact ? 90 : 140,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}>
-                  {s.isHighlight ? 'HSMZ' : s.name}
-                </span>
-              </div>
-            )
-          })}
-      </div>
 
       {tooltip && (
         <ChartTooltip

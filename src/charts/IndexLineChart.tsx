@@ -367,105 +367,45 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
                 {panel.series.map((s) => {
                   const lp = lastPoint(s)
                   if (!lp) return null
-                  const labelText = s.key === 'HSMZ' ? 'HS Mainz' : s.label.length > 18 ? s.label.slice(0, 16) + '…' : s.label
+                  const shortLabel = s.key === 'HSMZ' ? 'HS Mainz' : s.label.length > 12 ? s.label.slice(0, 10) + '…' : s.label
+                  const valueText = formatValue(lp.index)
                   const isHovered = hoveredLine === s.key
                   return (
                     <text
                       key={`label-${s.key}`}
                       x={width - dims.margin.right + 8}
                       y={y(lp.index)}
-                      fontSize={compact ? 9 : 11}
+                      fontSize={compact ? 11 : 13}
                       fontWeight={s.key === 'HSMZ' ? 600 : isHovered ? 600 : 500}
                       fill={s.color}
                       dominantBaseline="middle"
                       opacity={hoveredLine && !isHovered && s.key !== 'HSMZ' ? 0.4 : 1}
                       style={{ transition: 'opacity 0.15s' }}
                     >
-                      {labelText}
+                      {shortLabel} {valueText}
                     </text>
                   )
                 })}
                 {/* Hovered university label */}
                 {hoveredUniversitySeries && hoveredUniversitySeries.points.length > 0 && (() => {
                   const lp = hoveredUniversitySeries.points[hoveredUniversitySeries.points.length - 1]
-                  const labelText = hoveredUniversitySeries.label.length > 18 ? hoveredUniversitySeries.label.slice(0, 16) + '…' : hoveredUniversitySeries.label
+                  const shortLabel = hoveredUniversitySeries.label.length > 12 ? hoveredUniversitySeries.label.slice(0, 10) + '…' : hoveredUniversitySeries.label
+                  const valueText = formatValue(lp.index)
                   return (
                     <text
                       x={width - dims.margin.right + 8}
                       y={y(lp.index)}
-                      fontSize={compact ? 9 : 11}
+                      fontSize={compact ? 11 : 13}
                       fontWeight={600}
                       fill={hoveredUniversitySeries.color}
                       dominantBaseline="middle"
                     >
-                      {labelText}
+                      {shortLabel} {valueText}
                     </text>
                   )
                 })()}
               </g>
             </svg>
-            {/* Legend below chart */}
-            <div style={{ 
-              display: 'flex', 
-              flexWrap: 'wrap', 
-              gap: compact ? '4px 6px' : '8px 12px', 
-              marginTop: compact ? 6 : 10,
-              paddingTop: compact ? 6 : 10,
-              borderTop: '1px solid var(--border-light)'
-            }}>
-              {panel.series.map((s) => {
-                const lp = lastPoint(s)
-                const isClickable = s.key !== 'HSMZ' && !s.key.startsWith('compare_')
-                const isHovered = hoveredLine === s.key
-                return (
-                  <div 
-                    key={s.key}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: compact ? 4 : 6,
-                      cursor: isClickable ? 'pointer' : 'default',
-                      padding: compact ? '2px 6px' : '4px 8px',
-                      borderRadius: 4,
-                      background: s.key === 'HSMZ' ? 'var(--accent-light)' : isHovered ? 'var(--bg)' : 'transparent',
-                      border: isClickable ? '1px solid transparent' : 'none',
-                      transition: 'all 0.15s',
-                    }}
-                    onMouseEnter={() => isClickable && setHoveredLine(s.key)}
-                    onMouseLeave={() => setHoveredLine(null)}
-                    onClick={() => {
-                      if (isClickable) handleLineClick(s.key)
-                    }}
-                  >
-                    <span 
-                      style={{ 
-                        width: compact ? 8 : 10, 
-                        height: compact ? 8 : 10, 
-                        borderRadius: '50%', 
-                        background: s.color,
-                        flexShrink: 0,
-                      }} 
-                    />
-                    <span style={{ 
-                      fontSize: compact ? 10 : 12, 
-                      fontWeight: s.key === 'HSMZ' ? 600 : 500,
-                      color: isHovered ? 'var(--text)' : 'var(--text-secondary)',
-                    }}>
-                      {compact ? s.label.replace(' (Public)', '').replace(' (Privat)', ' Priv.') : s.label}
-                    </span>
-                    {lp && (
-                      <span style={{ 
-                        fontSize: compact ? 10 : 12, 
-                        fontWeight: 600,
-                        color: 'var(--text)',
-                      }}>
-                        {formatValue(lp.index)}
-                      </span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
           </div>
         ))}
       </div>
