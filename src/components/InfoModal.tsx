@@ -68,7 +68,7 @@ export function InfoModal({ university, studiengang, niveau, onClose }: Props) {
         <div className="modalHeader">
           <div>
             <h2 className="modalTitle">{university}</h2>
-            {studiengang && <p className="modalSubtitle">{studiengang}{niveau && niveau !== 'Alle' ? ` (${niveau})` : ''}</p>}
+            {studiengang && <p className="modalSubtitle">{studiengang}{niveau && niveau !== 'Alle' ? ` – ${niveau}` : ''}</p>}
           </div>
           <button className="modalClose" onClick={onClose} aria-label="Schließen">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
