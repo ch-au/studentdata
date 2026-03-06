@@ -1,11 +1,11 @@
 import { useMemo, useState, useCallback } from 'react'
 import { useData } from './data/useData'
 import type { Filters, LineKey } from './types'
-import { buildPanels, buildHoveredUniversitySeries, type ScaleMode } from './compute/aggregate'
+import type { ScaleMode } from './compute/aggregate'
 import { IndexLineChart } from './charts/IndexLineChart'
 import { UniversityYearTable } from './components/UniversityYearTable'
-import { buildBumpSeries, buildHoveredUniversityBumpSeries } from './compute/bump'
 import { BumpChart } from './charts/BumpChart'
+import { useChartData } from './data/useChartData'
 import { useDashboardState } from './state/useDashboardState'
 import { KpiPanel } from './components/KpiPanel'
 import { DataQualityHints } from './components/DataQualityHints'
@@ -80,55 +80,9 @@ function App() {
     setTableInstitutionFilter(null)
   }, [])
 
-  const availableStudienfaecher = useMemo(() => {
-    const set = new Set<string>()
-    if (!effectiveFilters) return []
-    for (const r of rows) if (r.fachbereich === effectiveFilters.fachbereich) set.add(r.studienfach)
-    return [...set].sort()
-  }, [rows, effectiveFilters?.fachbereich])
-
-  const panels = useMemo(() => {
-    if (!effectiveFilters)
-      return [
-        { degree: 'Alle' as const, series: [] },
-      ]
-    return buildPanels(rows, effectiveFilters, scaleMode, compareUniversities, tableDegree)
-  }, [rows, effectiveFilters, scaleMode, compareUniversities, tableDegree])
-
-  const bump = useMemo(() => {
-    if (!effectiveFilters) return { 
-      years: [] as number[], 
-      series: [] as ReturnType<typeof buildBumpSeries>['series'],
-      highlightMaxRank: 1,
-      highlightMinRank: 1,
-      totalUniversities: 0,
-      displayMode: 'top' as const,
-    }
-    return buildBumpSeries(rows, effectiveFilters, {
-      degree: tableDegree,
-      topN,
-      highlightUniversity: effectiveFilters.highlightUniversity,
-    })
-  }, [
-    rows,
-    effectiveFilters?.fachbereich,
-    effectiveFilters?.studienfach,
-    effectiveFilters?.yearFrom,
-    effectiveFilters?.yearTo,
-    effectiveFilters?.highlightUniversity,
-    tableDegree,
-    topN,
-  ])
-
-  const hoveredUniversitySeries = useMemo(() => {
-    if (!effectiveFilters || !hoveredUniversity) return null
-    return buildHoveredUniversitySeries(rows, effectiveFilters, hoveredUniversity, scaleMode, tableDegree)
-  }, [rows, effectiveFilters, hoveredUniversity, scaleMode, tableDegree])
-
-  const hoveredUniversityBumpSeries = useMemo(() => {
-    if (!effectiveFilters || !hoveredUniversity) return null
-    return buildHoveredUniversityBumpSeries(rows, effectiveFilters, hoveredUniversity, tableDegree)
-  }, [rows, effectiveFilters, hoveredUniversity, tableDegree])
+  const { availableStudienfaecher, panels, bump, hoveredUniversitySeries, hoveredUniversityBumpSeries } = useChartData({
+    rows, effectiveFilters, scaleMode, tableDegree, topN, hoveredUniversity, compareUniversities,
+  })
 
   if (state.status === 'loading') {
     return (
