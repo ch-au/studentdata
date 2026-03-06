@@ -71,10 +71,14 @@ async function fetchUniversityData(
   university: string,
   studiengangText: string,
   niveauText: string,
+  niveauLabel: string = "",
   comparisonContext: string = ""
 ) {
   const prompts = await loadPrompts();
-  const vars = { university, studiengangText, niveauText, comparisonContext };
+  const niveauHinweis = niveauLabel
+    ? `WICHTIG: Fokussiere dich ausschließlich auf den ${niveauLabel}-Studiengang (nicht auf andere Abschlüsse wie ${niveauLabel === "Bachelor" ? "Master" : "Bachelor"}).`
+    : "";
+  const vars = { university, studiengangText, niveauText, niveauLabel, niveauHinweis, comparisonContext };
 
   const systemPrompt = fillTemplate(prompts.system, vars);
 
@@ -134,6 +138,7 @@ app.post("/api/university-info", async (req, res) => {
     }
 
     const niveauText = niveau && niveau !== "Alle" ? ` (${niveau})` : "";
+    const niveauLabel = niveau && niveau !== "Alle" ? niveau : "";
     const studiengangText = studiengang ? `${studiengang}${niveauText}` : "Studienangebots";
 
     const isMainz = university.toLowerCase().includes("mainz");
@@ -148,7 +153,7 @@ app.post("/api/university-info", async (req, res) => {
         mainzInfo = cache[cacheKey];
       } else {
         console.log(`[Cache Miss] Hochschule Mainz for ${cacheKey}, fetching...`);
-        mainzInfo = await fetchUniversityData(university, studiengangText, niveauText);
+        mainzInfo = await fetchUniversityData(university, studiengangText, niveauText, niveauLabel);
         await setMainzCache(cacheKey, mainzInfo);
       }
       return res.json({
@@ -166,12 +171,12 @@ app.post("/api/university-info", async (req, res) => {
       mainzFacts = cache[cacheKey];
     } else {
       console.log(`[Cache Miss] Pre-querying Hochschule Mainz facts for ${cacheKey}, fetching...`);
-      mainzFacts = await fetchUniversityData("Hochschule Mainz", studiengangText, niveauText);
+      mainzFacts = await fetchUniversityData("Hochschule Mainz", studiengangText, niveauText, niveauLabel);
       await setMainzCache(cacheKey, mainzFacts);
     }
 
     // Now research the requested university with the Mainz facts injected
-    const targetInfo = await fetchUniversityData(university, studiengangText, niveauText, mainzFacts);
+    const targetInfo = await fetchUniversityData(university, studiengangText, niveauText, niveauLabel, mainzFacts);
 
     res.json({
       university,
