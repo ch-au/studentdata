@@ -30,6 +30,7 @@ if (isProduction) {
 }
 
 import fs from "fs/promises";
+import YAML from "yaml";
 
 // Helper to reliably interact with the JSON cache file.
 const CACHE_FILE_PATH = path.join(__dirname, "mainz_cache.json");
@@ -52,105 +53,34 @@ async function setMainzCache(key: string, value: string) {
   await fs.writeFile(CACHE_FILE_PATH, JSON.stringify(cache, null, 2), "utf-8");
 }
 
+const PROMPTS_PATH = path.join(__dirname, "prompts.yaml");
+let promptsCache: Record<string, string> | null = null;
+
+async function loadPrompts(): Promise<Record<string, string>> {
+  if (promptsCache) return promptsCache;
+  const raw = await fs.readFile(PROMPTS_PATH, "utf-8");
+  promptsCache = YAML.parse(raw);
+  return promptsCache!;
+}
+
+function fillTemplate(template: string, vars: Record<string, string>): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? "");
+}
+
 async function fetchUniversityData(
   university: string,
   studiengangText: string,
   niveauText: string,
   comparisonContext: string = ""
 ) {
-  const systemPrompt = `Du bist ein Studienerater, der spezifische Informationen über Studiengänge an Hochschulen recherchiert. Antworte immer auf Deutsch in einfacher, verständlicher Sprache. Formatiere deine Antwort in Markdown. Sei konkret und spezifisch - keine generischen Aussagen. Stelle KEINE Rückfragen - antworte direkt mit den verfügbaren Informationen.`;
+  const prompts = await loadPrompts();
+  const vars = { university, studiengangText, niveauText, comparisonContext };
 
-  let userPrompt = "";
+  const systemPrompt = fillTemplate(prompts.system, vars);
 
-  if (comparisonContext) {
-    userPrompt = `Du bist als Vergleichs-Analyst tätig. Recherchiere die Value Proposition des ${studiengangText} an der Hochschule ${university} und vergleiche sie direkt mit den bekannten Fakten der Hochschule Mainz.
-
-Bedenke die folgenden bekannten Fakten zur Hochschule Mainz:
-<HochschuleMainzFakten>
-${comparisonContext}
-</HochschuleMainzFakten>
-
-Bitte halte dich zwingend an die folgende Struktur: Beginne mit einer Management Summary, erstelle danach eine Strukturierte Vergleichstabelle und liefere abschließend die detaillierten Datenpunkte der Hochschule ${university}.
-
-WICHTIG: Sei spezifisch, datengestützt und nicht generisch! Beispiele: "Regelstudienzeit: 7 Semester", "NC: 2,4 im WS 23/24", "Praxis: 24 Wochen im 5. Semester".
-
-Formatiere die Antwort zwingend in diesem Markdown-Format:
-
-## Management Summary (Vergleich)
-[Fasse die wichtigsten Unterschiede, die Value Proposition und die strategische Ausrichtung (USP) der Hochschule ${university} im direkten Vergleich zur Hochschule Mainz in 2-3 prägnanten Sätzen zusammen.]
-
-## Strukturierter Vergleich: Hochschule ${university} vs. Hochschule Mainz
-| Kategorie | Hochschule ${university} | Hochschule Mainz |
-| :--- | :--- | :--- |
-| **Strukturell & Formal** (Dauer, ECTS, Kosten) | ... | ... |
-| **Inhaltlich & Fachlich** (Schwerpunkte, Praxis) | ... | ... |
-| **Methodik & Lehrformat** (Präsenz, Specials) | ... | ... |
-| **Marketing & USP** | ... | ... |
-
-## Detaillierte Analyse: Hochschule ${university}
-### 1. Strukturell & Formal
-- **Regelstudienzeit & ECTS:** [z.B. 7 Semester, 210 ECTS]
-- **Zulassung (NC/Eignungstest):** [z.B. NC-frei, Vorpraktikum nötig]
-- **Kosten & Gebühren:** [z.B. Semesterbeitrag 142€, keine Studiengebühren]
-- **Standort & Abschluss:** [z.B. München, B.Sc.]
-
-### 2. Inhaltlich & Fachlich
-- **Schwerpunkte & Vertiefungen:** [z.B. ab 4. Semester Wahl zwischen Cyber Security und Data Science]
-- **Spezifische Module (Beispiele):** [Nenne 2-3 konkrete, herausstechende Module, insb. bzgl. neue Technologien/KI]
-- **Praxisanteil:** [z.B. 20 Wochen Pflichtpraktikum im 5. Semester]
-
-### 3. Methodik & Lehrformat
-- **Lehrformate:** [z.B. hoher Anteil an Projektarbeiten in Kleingruppen]
-- **Präsenz vs. Online:** [Gibt es hybride Konzepte oder strikte Präsenzpflicht?]
-- **Besonderheiten:** [z.B. Duales Studium möglich, Auslandssemester integriert]
-
-### 4. Marketing & USP (Unique Selling Proposition)
-- **Kommunizierte USP:** [Wie positioniert sich der Studiengang offiziell? Womit wird geworben?]`;
-  } else {
-    userPrompt = `Recherchiere die Value Proposition des ${studiengangText} an der Hochschule ${university}.
-
-Bitte halte dich zwingend an die folgende Struktur: Beginne mit einer Management Summary, erstelle danach eine Strukturierte Übersichtstabelle und liefere abschließend die detaillierten Datenpunkte.
-
-WICHTIG: Sei spezifisch, datengestützt und nicht generisch! Beispiele: "Regelstudienzeit: 7 Semester", "NC: 2,4 im WS 23/24", "Praxis: 24 Wochen im 5. Semester".
-
-Formatiere die Antwort zwingend in diesem Markdown-Format:
-
-## Management Summary
-[Fasse die wichtigsten Erkenntnisse, die Value Proposition und die strategische Ausrichtung (USP) des Studiengangs in 2-3 prägnanten Sätzen zusammen.]
-
-## Strukturierte Übersicht
-| Kategorie | Kernaspekte Hochschule ${university} |
-| :--- | :--- |
-| **Strukturell & Formal** | [Kompakte Zusammenfassung] |
-| **Inhaltlich & Fachlich** | [Kompakte Zusammenfassung] |
-| **Methodik & Lehrformat** | [Kompakte Zusammenfassung] |
-| **Marketing & USP** | [Kompakte Zusammenfassung] |
-
-## Detaillierte Analyse
-### 1. Strukturell & Formal
-- **Regelstudienzeit & ECTS:** [z.B. 7 Semester, 210 ECTS]
-- **Zulassung (NC/Eignungstest):** [z.B. NC-frei, Vorpraktikum nötig]
-- **Kosten & Gebühren:** [z.B. Semesterbeitrag 142€, keine Studiengebühren]
-- **Standort & Abschluss:** [z.B. München, B.Sc.]
-
-### 2. Inhaltlich & Fachlich
-- **Schwerpunkte & Vertiefungen:** [z.B. ab 4. Semester Wahl zwischen Cyber Security und Data Science]
-- **Spezifische Module (Beispiele):** [Nenne 2-3 konkrete, herausstechende Module, insb. bzgl. neue Technologien/KI]
-- **Praxisanteil:** [z.B. 20 Wochen Pflichtpraktikum im 5. Semester]
-
-### 3. Methodik & Lehrformat
-- **Lehrformate:** [z.B. hoher Anteil an Projektarbeiten in Kleingruppen]
-- **Präsenz vs. Online:** [Gibt es hybride Konzepte oder strikte Präsenzpflicht?]
-- **Besonderheiten:** [z.B. Duales Studium möglich, Auslandssemester integriert]
-
-### 4. Marketing & USP (Unique Selling Proposition)
-- **Kommunizierte USP:** [Wie positioniert sich der Studiengang offiziell? Womit wird geworben?]`;
-  }
-
-  userPrompt += `\n\n## Quelle
-Gib am Ende unbedingt die direkte URL zur Studiengangsseite an (nicht die Hauptseite der Hochschule, sondern die spezifische Seite des Studiengangs${niveauText}).
-
-WICHTIG: Stelle KEINE Rückfragen! Antworte direkt mit den Informationen, die du hast.`;
+  const base = comparisonContext ? prompts.comparison : prompts.standard;
+  const suffix = prompts.suffix;
+  const userPrompt = fillTemplate(base, vars) + "\n" + fillTemplate(suffix, vars);
 
   const modelName = "google/gemini-3.1-flash-lite-preview";
   const startTime = Date.now();
