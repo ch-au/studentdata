@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 type Props = {
   university: string
@@ -112,7 +113,7 @@ export function InfoModal({ university, studiengang, niveau, onClose }: Props) {
           
           {!loading && !error && info && (
             <div className="modalInfo markdown-content">
-              <Markdown>{info}</Markdown>
+              <Markdown remarkPlugins={[remarkGfm]}>{info}</Markdown>
             </div>
           )}
         </div>

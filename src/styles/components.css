@@ -752,6 +752,53 @@
   text-decoration: underline;
 }
 
+.markdown-content h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 16px 0 8px;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 16px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.markdown-content thead th {
+  background: var(--bg-alt);
+  font-weight: 600;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid var(--border-light);
+  color: var(--text);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.markdown-content tbody td {
+  padding: 8px 10px;
+  border: 1px solid var(--border-light);
+  color: var(--text);
+  vertical-align: top;
+}
+
+.markdown-content tbody tr:nth-child(even) {
+  background: var(--bg-alt);
+}
+
+.markdown-content tbody tr:hover {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
 .modalFooter {
   padding: 12px 24px;
   border-top: 1px solid var(--border-light);
