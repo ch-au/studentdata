@@ -2,6 +2,7 @@ import { memo, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import type { DegreePanel, LineKey, Series } from '../types'
 import type { ScaleMode } from '../compute/aggregate'
+import { CHART_COLORS } from '../style/seriesStyle'
 
 type Props = {
   title: string
@@ -86,9 +87,7 @@ function IndexLineChartComponent({ title, subtitle, panels, scaleMode = 'index',
   }
 
   // Styles
-  const gridColor = '#f0f3f6'
-  const axisColor = '#e0e5eb'
-  const labelColor = '#8b8ba7'
+  const { grid: gridColor, axis: axisColor, label: labelColor } = CHART_COLORS
 
   const formatValue = (val: number) => {
     if (isAbsolute) {

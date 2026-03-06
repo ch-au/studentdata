@@ -1,9 +1,9 @@
 import type { DataRow, DegreePanel, Filters, LineKey, Point, Series } from '../types'
-import { getLineStyle } from '../style/seriesStyle'
+import { getLineStyle, CHART_COLORS } from '../style/seriesStyle'
 
 export type ScaleMode = 'index' | 'absolute' | 'share'
 
-function computeIndex(valuesByYear: Map<number, number>, baselineYear: number): Point[] {
+export function computeIndex(valuesByYear: Map<number, number>, baselineYear: number): Point[] {
   const years = [...valuesByYear.keys()].sort((a, b) => a - b)
   if (years.length === 0) return []
 
@@ -214,7 +214,7 @@ export function buildHoveredUniversitySeries(
   return {
     key: 'compare_0' as LineKey,
     label: shortName,
-    color: '#059669',
+    color: CHART_COLORS.hoveredUniversity,
     points,
   }
 }
@@ -279,7 +279,7 @@ export function buildOverviewFachbereichLines(
 
   const out: Array<{ fachbereich: string; series: Series[] }> = []
 
-  for (const fb of Array.from(fachbereiche).sort()) {
+  for (const fb of Array.from(fachbereiche).sort((a, b) => a.localeCompare(b, 'de'))) {
     const scoped = rows.filter((r) => {
       if (r.abschluss !== degree) return false
       if (r.fachbereich !== fb) return false

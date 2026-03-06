@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { DataRow, Point } from '../types'
 import { getLineStyle } from '../style/seriesStyle'
 import { getFachbereichColor, CORPORATE_BLUE } from '../style/fachbereichColors'
+import { computeIndex } from '../compute/aggregate'
 
 type Props = {
   rows: DataRow[]
@@ -25,29 +26,6 @@ type FachbereichData = {
   bachelor: DegreeData
   master: DegreeData
   gesamt: DegreeData
-}
-
-function computeIndex(valuesByYear: Map<number, number>, baselineYear: number): Point[] {
-  const years = [...valuesByYear.keys()].sort((a, b) => a - b)
-  if (years.length === 0) return []
-
-  const findBaseYear = () => {
-    const baseVal = valuesByYear.get(baselineYear)
-    if (baseVal != null && baseVal !== 0) return baselineYear
-    for (const y of years) {
-      const v = valuesByYear.get(y) ?? 0
-      if (v !== 0) return y
-    }
-    return years[0]
-  }
-
-  const usedBaseline = findBaseYear()
-  const base = valuesByYear.get(usedBaseline) ?? 0
-  return years.map((year) => {
-    const value = valuesByYear.get(year) ?? 0
-    const index = base === 0 ? 0 : (value / base) * 100
-    return { year, value, index }
-  })
 }
 
 function buildDegreeData(
@@ -275,7 +253,7 @@ export function FachbereichOverview({
 
     const result: FachbereichData[] = []
 
-    for (const fb of Array.from(fbSet).sort()) {
+    for (const fb of Array.from(fbSet).sort((a, b) => a.localeCompare(b, 'de'))) {
       result.push({
         fachbereich: fb,
         bachelor: buildDegreeData(rows, fb, 'Bachelor', yearFrom, yearTo, baselineYear, highlightUniversity),
@@ -347,15 +325,15 @@ export function FachbereichOverview({
       {/* Faculty color legend */}
       <div className="fbColorLegend">
         <span className="fbColorLegendItem">
-          <span className="fbColorSwatch" style={{ background: '#dc372d' }} />
+          <span className="fbColorSwatch" style={{ background: getFachbereichColor('BWL') }} />
           Wirtschaft
         </span>
         <span className="fbColorLegendItem">
-          <span className="fbColorSwatch" style={{ background: '#870064' }} />
+          <span className="fbColorSwatch" style={{ background: getFachbereichColor('Gestaltung') }} />
           Gestaltung
         </span>
         <span className="fbColorLegendItem">
-          <span className="fbColorSwatch" style={{ background: '#00823c' }} />
+          <span className="fbColorSwatch" style={{ background: getFachbereichColor('Technik') }} />
           Technik
         </span>
       </div>

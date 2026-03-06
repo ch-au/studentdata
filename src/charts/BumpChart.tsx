@@ -1,7 +1,7 @@
 import { memo, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import type { BumpSeries } from '../compute/bump'
-import { getLineStyle } from '../style/seriesStyle'
+import { getLineStyle, CHART_COLORS } from '../style/seriesStyle'
 import { ChartTooltip, type TooltipRow } from '../components/ChartTooltip'
 
 type Props = {
@@ -90,8 +90,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
     .curve(d3.curveMonotoneX)
 
   const highlightColor = getLineStyle('HSMZ', fachbereich).color
-  const gridColor = '#f0f3f6'
-  const labelColor = '#8b8ba7'
+  const { grid: gridColor, label: labelColor, nonHighlight: nonHighlightColor, hoveredUniversity: hoveredColor } = CHART_COLORS
 
   function handleMove(ev: React.MouseEvent<SVGElement>) {
     const svg = ev.currentTarget.closest('svg') as SVGSVGElement
@@ -115,7 +114,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
           value: p.value,
           previousValue: prevP?.value,
           rank: p.rank,
-          color: s.isHighlight ? highlightColor : '#94a3b8',
+          color: s.isHighlight ? highlightColor : nonHighlightColor,
           isHighlight: s.isHighlight,
         } as TooltipRow
       })
@@ -245,7 +244,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                     key={s.name}
                     d={line(s.points.map((p) => ({ year: p.year, rank: p.rank }))) ?? undefined}
                     fill="none"
-                    stroke={isHovered ? '#059669' : '#cbd5e1'}
+                    stroke={isHovered ? hoveredColor : nonHighlightColor}
                     strokeWidth={isHovered ? (compact ? 2.5 : 3.5) : (compact ? 1.5 : 2.5)}
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -269,7 +268,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                     cx={x(p.year)}
                     cy={y(p.rank)}
                     r={isHovered ? (compact ? 4 : 5) : (compact ? 2.5 : 4)}
-                    fill={isHovered ? '#059669' : '#cbd5e1'}
+                    fill={isHovered ? hoveredColor : nonHighlightColor}
                     stroke="#fff"
                     strokeWidth={compact ? 1 : 2}
                     opacity={hoveredSeries && !isHovered ? 0.3 : 1}
@@ -285,7 +284,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
               <path
                 d={line(hoveredBumpSeries.points.map((p) => ({ year: p.year, rank: p.rank }))) ?? undefined}
                 fill="none"
-                stroke="#059669"
+                stroke={hoveredColor}
                 strokeWidth={compact ? 2.5 : 3.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -298,7 +297,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                   cx={x(p.year)}
                   cy={y(p.rank)}
                   r={compact ? 4 : 5}
-                  fill="#059669"
+                  fill={hoveredColor}
                   stroke="#fff"
                   strokeWidth={compact ? 1 : 2}
                 />
@@ -378,7 +377,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                 y={y(fp.rank)}
                 fontSize={compact ? 11 : 13}
                 fontWeight={600}
-                fill="#059669"
+                fill={hoveredColor}
                 textAnchor="end"
                 dominantBaseline="middle"
               >
@@ -418,7 +417,7 @@ function BumpChartComponent({ title, years, series, compact = false, hoveredUniv
                 y={y(lp.rank)}
                 fontSize={compact ? 11 : 13}
                 fontWeight={600}
-                fill="#059669"
+                fill={hoveredColor}
                 dominantBaseline="middle"
               >
                 {shortLabel} #{lp.rank}

@@ -46,9 +46,9 @@ export function useData() {
     return {
       yearMin: yearList[0] ?? 2015,
       yearMax: yearList[yearList.length - 1] ?? 2024,
-      fachbereiche: [...fachbereiche].sort(),
-      studienfaecher: [...studienfaecher].sort(),
-      hochschulen: [...hochschulen].sort(),
+      fachbereiche: [...fachbereiche].sort((a, b) => a.localeCompare(b, 'de')),
+      studienfaecher: [...studienfaecher].sort((a, b) => a.localeCompare(b, 'de')),
+      hochschulen: [...hochschulen].sort((a, b) => a.localeCompare(b, 'de')),
     }
   }, [state])
 

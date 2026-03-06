@@ -1,6 +1,15 @@
 import type { LineKey, Traeger, Typ } from '../types'
 import { getFachbereichColor, CORPORATE_BLUE } from './fachbereichColors'
 
+// Shared chart styling constants
+export const CHART_COLORS = {
+  grid: '#f0f3f6',
+  label: '#8b8ba7',
+  axis: '#e0e5eb',
+  nonHighlight: '#cbd5e1',
+  hoveredUniversity: '#059669',
+} as const
+
 export type Badge = {
   text: string
   bg: string
